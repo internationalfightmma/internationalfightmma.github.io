@@ -1368,6 +1368,23 @@
 /* Cortesia grid */
 .cortesia-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
 
+/* Certificaciones */
+.cert-titulo { color: var(--gold); font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin: 14px 0 8px; }
+.cert-lista { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.cert-btn { background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.35); color: var(--gold); font-size: 13px; font-weight: 600; border-radius: 6px; padding: 7px 12px; text-align: left; cursor: pointer; transition: background 0.2s; }
+.cert-btn:hover { background: rgba(212,175,55,0.25); }
+
+/* Modal certificado */
+#certModal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; }
+#certModal.open { display: flex; }
+.cert-modal-box { background: #1a1a1a; border-radius: 10px; width: min(90vw, 820px); max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.7); }
+.cert-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.cert-modal-header span { color: #fff; font-weight: 700; font-size: 15px; }
+.cert-modal-close { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 26px; cursor: pointer; line-height: 1; padding: 0; }
+.cert-modal-close:hover { color: #fff; }
+.cert-modal-body { flex: 1; overflow: hidden; }
+.cert-modal-body iframe { width: 100%; height: 75vh; border: none; display: block; }
+
 </style>
 </head>
 <body>
@@ -2105,9 +2122,17 @@
                 <div class="peleador-tapology" style="color:var(--gray-light);">Profesor BJJ · MMA</div>
                 <ul class="peleador-logros">
                   <li>🥋 Cinta Negra BJJ</li>
+                  <li>🥊 Especialista en Muay Thai</li>
+                  <li>🥊 Especialista en Striking MMA</li>
                   <li>⚔️ Peleador Profesional MMA</li>
                   <li>⏱️ +15 años de experiencia</li>
                 </ul>
+                <div class="cert-titulo">🏅 Certificaciones</div>
+                <div class="cert-lista">
+                  <button class="cert-btn" onclick="abrirCert('https://drive.google.com/file/d/1Juzipk6DDEUioIzUBmoShK-tuWzAqKtk/preview','Fundamentos Gracie Barra')">📄 Fundamentos Gracie Barra</button>
+                  <button class="cert-btn" onclick="abrirCert('https://drive.google.com/file/d/12MrmshiZpACShT3lu5R89Nv4rRehKk5g/preview','Lo Esencial de Gracie Barra')">📄 Lo Esencial de Gracie Barra</button>
+                  <button class="cert-btn" onclick="abrirCert('https://drive.google.com/file/d/18wNiQPI5wPkVYTB8x-_jcwK1mA3U9vB5/preview','Método Gracie Barra')">📄 Método Gracie Barra</button>
+                </div>
                 <div class="peleador-social"><a href="https://www.instagram.com/fonque2014/" target="_blank">📷 @fonque2014</a></div>
               </div>
             </div>
@@ -2471,6 +2496,19 @@
     </div>
   </footer>
 
+  <!-- Modal Certificados -->
+  <div id="certModal">
+    <div class="cert-modal-box">
+      <div class="cert-modal-header">
+        <span id="certModalTitulo"></span>
+        <button class="cert-modal-close" onclick="cerrarCert()">&#x2715;</button>
+      </div>
+      <div class="cert-modal-body">
+        <iframe id="certModalFrame" src="" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
   <script>
     // NAV TOGGLE
     const navToggle = document.getElementById('navToggle');
@@ -2774,6 +2812,22 @@ function toggleMute(btn) {
         if (counter) counter.textContent = idx + 1;
       }, 3500);
     })();
+    // Modal certificados — JS
+
+    function abrirCert(url, titulo) {
+      document.getElementById('certModalTitulo').textContent = titulo;
+      document.getElementById('certModalFrame').src = url;
+      document.getElementById('certModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function cerrarCert() {
+      document.getElementById('certModal').classList.remove('open');
+      document.getElementById('certModalFrame').src = '';
+      document.body.style.overflow = '';
+    }
+    document.getElementById('certModal').addEventListener('click', function(e) {
+      if (e.target === this) cerrarCert();
+    });
   </script>
 </body>
 </html>
