@@ -22,6 +22,16 @@
       --white-pure: #FFFFFF;
     }
 
+    [data-theme="light"] {
+      --black: #FFFFFF;
+      --black-mid: #F5F5F5;
+      --black-light: #EEEEEE;
+      --gray: #CCCCCC;
+      --gray-mid: #999999;
+      --white: #111111;
+      --white-pure: #000000;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html { scroll-behavior: smooth; }
@@ -1412,6 +1422,7 @@
     <div class="nav-logo">
       <a href="#" aria-label="Inicio"><img src="logo-ifmma.png" alt="International Fight MMA"></a>
     </div>
+    <button id="theme-toggle" aria-label="Cambiar tema" style="background:none;border:1px solid var(--gray);border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;flex-shrink:0;">🌙</button>
     <button class="nav-toggle" id="navToggle" aria-label="Menú">
       <span></span><span></span><span></span>
     </button>
@@ -2884,6 +2895,19 @@ function toggleMute(btn) {
       function() { slidePersonalizado(-1); }
     );
   </script>
+<script>
+const toggle = document.getElementById('theme-toggle');
+const saved = localStorage.getItem('theme');
+if(saved) document.documentElement.setAttribute('data-theme', saved);
+if(saved === 'light') toggle.textContent = '☀️';
+toggle.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  toggle.textContent = next === 'light' ? '☀️' : '🌙';
+});
+</script>
 </body>
 </html>
 
