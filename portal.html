@@ -17,7 +17,7 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="brand">
-      <h1>IFMMA <span>Portal</span></h1>
+      <h1>IFM <span>Portal de Usuario</span></h1>
       <p>International Fight MMA</p>
     </div>
 
@@ -279,11 +279,20 @@ async function enterPortal(user) {
 }
 
 async function getUserRole(userId) {
-  const { data } = await supabase
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Check user_metadata first (set via Supabase dashboard or admin API — no RLS issues)
+  if (user?.user_metadata?.role === 'admin') return 'admin';
+  if (user?.app_metadata?.role === 'admin') return 'admin';
+
+  // Fallback: query profiles table
+  const { data, error } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', userId)
     .single();
+
+  if (error) console.warn('profiles role query failed:', error.message);
   return data?.role || 'student';
 }
 
