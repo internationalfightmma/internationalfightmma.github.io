@@ -20,6 +20,8 @@
       --gray-light: #888888;
       --white: #F5F5F5;
       --white-pure: #FFFFFF;
+      --text-color: #F5F5F5;
+      --bg-color: #0A0A0A;
       --nav-bg: rgba(10,10,10,0.95);
       --hero-bg: #0A0A0A;
     }
@@ -34,6 +36,8 @@
       --white: #0A0A0A;
       --white-pure: #000000;
       --nav-bg: rgba(255,255,255,0.97);
+      --text-color: #111111;
+      --bg-color: #FFFFFF;
       --hero-bg: #F2F2F2;
     }
 
@@ -365,7 +369,7 @@
     .academia-text p {
       font-size: 16px;
       line-height: 1.8;
-      color: rgba(245,245,245,0.75);
+      color: var(--text-color);
       margin-bottom: 20px;
     }
 
@@ -421,7 +425,7 @@
 
     .alliance-text p {
       font-size: 15px;
-      color: rgba(245,245,245,0.8);
+      color: var(--text-color);
       line-height: 1.5;
     }
 
@@ -659,7 +663,7 @@
 
     .peleador-logros li {
       font-size: 12px;
-      color: rgba(245,245,245,0.7);
+      color: var(--text-color);
       line-height: 1.4;
       padding-left: 12px;
       position: relative;
@@ -899,7 +903,7 @@
 
     .plan-features li {
       font-size: 14px;
-      color: rgba(245,245,245,0.8);
+      color: var(--text-color);
       padding-left: 20px;
       position: relative;
       line-height: 1.4;
@@ -997,7 +1001,7 @@
 
     .info-block p, .info-block a {
       font-size: 16px;
-      color: rgba(245,245,245,0.8);
+      color: var(--text-color);
       text-decoration: none;
       line-height: 1.6;
       transition: color 0.2s;
@@ -1214,7 +1218,7 @@
 .evento-badge.pasado { background: var(--gray-mid); }
 .evento-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-light); }
 .evento-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; line-height: 1; letter-spacing: 1px; color: var(--white-pure); }
-.evento-texto { font-size: 14px; line-height: 1.5; color: rgba(245, 245, 245, 0.75); border-top: 1px solid var(--gray); padding-top: 10px; }
+.evento-texto { font-size: 14px; line-height: 1.5; color: var(--text-color); border-top: 1px solid var(--gray); padding-top: 10px; }
 .evento-resultados { display: flex; flex-direction: column; gap: 6px; }
 .resultado-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: rgba(255, 255, 255, 0.02); border-left: 2px solid var(--red); }
 .evento-tags { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -1230,7 +1234,7 @@
 .novedad-card { background: var(--black-mid); border: 1px solid var(--gray); padding: 30px; display: flex; flex-direction: column; gap: 15px; }
 .novedad-tipo { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: var(--red); letter-spacing: 1px; }
 .novedad-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--white-pure); letter-spacing: 0.5px; }
-.novedad-desc { font-size: 14px; line-height: 1.6; color: rgba(245, 245, 245, 0.65); }
+.novedad-desc { font-size: 14px; line-height: 1.6; color: var(--text-color); }
 .novedad-fecha { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; color: var(--gray-light); margin-top: auto; letter-spacing: 1px; }
 @media (max-width: 768px) { .evento-card-full { grid-template-columns: 1fr; } .evento-media iframe { min-height: 250px; } }
 
@@ -1247,7 +1251,7 @@
 .afiliacion-nombre { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; color: var(--white-pure); line-height: 1; }
 .afiliacion-nombre span { color: var(--red); }
 .afiliacion-divider { width: 48px; height: 2px; background: var(--red); }
-.afiliacion-texto { font-size: 15px; line-height: 1.8; color: rgba(245,245,245,0.75); }
+.afiliacion-texto { font-size: 15px; line-height: 1.8; color: var(--text-color); }
 .afiliaciones-controls { display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 20px; }
 @media (max-width: 768px) { .afiliacion-card { grid-template-columns: 1fr; } .afiliacion-placeholder { min-height: 200px; } }
 /* -- ACADEMIA FOTO SLIDER ---- */
@@ -1255,7 +1259,7 @@
 .academia-foto-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s ease; }
 .academia-foto-slide.active { opacity: 1; }
 .academia-foto-slide img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
-.academia-foto-counter { position: absolute; bottom: 14px; right: 16px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; color: rgba(245,245,245,0.8); background: rgba(0,0,0,0.55); padding: 3px 8px; }
+.academia-foto-counter { position: absolute; bottom: 14px; right: 16px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; color: rgba(245,245,245,0.9); background: rgba(0,0,0,0.55); padding: 3px 8px; }
 @media (max-width: 768px) { .academia-foto-slider { height: 280px; } }
 
 /* -- PERSONALIZADOS SLIDER -- */
@@ -1268,7 +1272,7 @@
 .personalizado-nombre { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; color: var(--white-pure); line-height: 1; }
 .personalizado-nombre span { color: var(--red); }
 .personalizado-cargo { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--red); }
-.personalizado-texto { font-size: 14px; line-height: 1.7; color: rgba(245,245,245,0.75); }
+.personalizado-texto { font-size: 14px; line-height: 1.7; color: var(--text-color); }
 @media (max-width: 768px) { .personalizado-card { grid-template-columns: 1fr; } }
 
 /* -- NOVEDADES HORIZONTALES -- */
@@ -1284,7 +1288,7 @@
 .novedad-h-badge.cronica { background: rgba(245,245,245,0.12); color: var(--white-pure); border: 1px solid var(--gray); }
 .novedad-h-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1.5px; color: var(--white-pure); line-height: 1.1; margin: 0; }
 .novedad-h-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--red); }
-.novedad-h-desc { font-size: 14px; line-height: 1.7; color: rgba(245,245,245,0.75); }
+.novedad-h-desc { font-size: 14px; line-height: 1.7; color: var(--text-color); }
 
 /* -- NOVEDADES SLIDE BADGES -- */
 .novedad-slide-badge { position: absolute; top: 16px; left: 16px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; padding: 5px 12px; border-radius: 2px; font-weight: 700; z-index: 2; }
@@ -1436,48 +1440,79 @@
 .cert-modal-body { flex: 1; overflow: hidden; }
 .cert-modal-body iframe { width: 100%; height: 75vh; border: none; display: block; }
 
-/* ── LIGHT MODE OVERRIDES ──────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   LIGHT MODE OVERRIDES
+   ══════════════════════════════════════════════════════════════════════════ */
 
-/* Nav CTA siempre texto blanco (fondo rojo) */
+/* ── TEXTOS PRINCIPALES ── */
+[data-theme="light"] .hero-title,
+[data-theme="light"] .section-title,
+[data-theme="light"] .academia-quote blockquote,
+[data-theme="light"] .disciplina-name,
+[data-theme="light"] .peleador-name,
+[data-theme="light"] .plan-name,
+[data-theme="light"] .plan-price,
+[data-theme="light"] .evento-titulo,
+[data-theme="light"] .novedad-titulo,
+[data-theme="light"] .novedad-h-titulo,
+[data-theme="light"] .nov-titulo-text,
+[data-theme="light"] .afiliacion-nombre,
+[data-theme="light"] .personalizado-nombre { color: var(--text-color); }
+
+/* ── TEXTO SECUNDARIO inline rgba(245,245,245,...) ── */
+[data-theme="light"] [style*="rgba(245,245,245"] { color: var(--text-color) !important; }
+
+/* ── TARJETAS: nombres, resultados, párrafos ── */
+[data-theme="light"] .resultado-item strong,
+[data-theme="light"] .resultado-item p span { color: var(--text-color) !important; }
+[data-theme="light"] .nov-info-slide p,
+[data-theme="light"] .evento-info p { color: var(--text-color) !important; }
+
+/* ── MANTENER BLANCO en fondos rojo/verde/oscuro ── */
+[data-theme="light"] .btn-primary,
+[data-theme="light"] .plan-cta,
 [data-theme="light"] .nav-cta,
 [data-theme="light"] .nav-cta:hover { color: #FFFFFF !important; }
+[data-theme="light"] .stat-number { color: #FFFFFF !important; }
+[data-theme="light"] .stat-label { color: rgba(255,255,255,0.85) !important; }
+[data-theme="light"] .horarios-table th { color: #FFFFFF !important; }
+[data-theme="light"] .plan-badge { color: #FFFFFF !important; }
+[data-theme="light"] .whatsapp-btn { color: #FFFFFF !important; }
+[data-theme="light"] .mute-btn,
+[data-theme="light"] .nov-mute-btn { color: #FFFFFF !important; }
+[data-theme="light"] .social-link:hover { color: #FFFFFF !important; }
 
-/* Nombres y resultados en tarjetas de eventos (fondo claro en light mode) */
-[data-theme="light"] .resultado-item strong,
-[data-theme="light"] .resultado-item p span { color: var(--white) !important; }
-
-/* Párrafos de descripción en novedades con color rgba(245,...) inline */
-[data-theme="light"] .nov-info-slide p,
-[data-theme="light"] .evento-info p { color: var(--white) !important; }
-
-/* Badges de vidrio: fondo semitransparente blanco → oscuro en light mode */
-[data-theme="light"] .nov-info-slide .evento-badge[style*="rgba(245,245,245"] {
-  background: rgba(0,0,0,0.08) !important;
-  color: var(--white) !important;
-  border-color: var(--gray-mid) !important;
-}
-
-/* Textos con color heredado en secciones de contenido */
-[data-theme="light"] .evento-titulo { color: var(--white); }
-[data-theme="light"] .novedad-titulo { color: var(--white); }
-[data-theme="light"] .afiliacion-nombre { color: var(--white); }
-[data-theme="light"] .personalizado-nombre { color: var(--white); }
-[data-theme="light"] .novedad-h-titulo { color: var(--white); }
-[data-theme="light"] .nov-titulo-text { color: var(--white); }
-[data-theme="light"] .evento-meta { color: var(--gray-light); }
-
-/* Badge "cronica/video" de vidrio en novedades */
+/* ── BADGE CRONICA ── */
 [data-theme="light"] .novedad-h-badge.cronica,
 [data-theme="light"] .novedad-slide-badge.cronica {
   background: rgba(0,0,0,0.08) !important;
-  color: var(--white) !important;
+  color: var(--text-color) !important;
+  border-color: var(--gray-mid) !important;
+}
+[data-theme="light"] .nov-info-slide .evento-badge[style*="rgba(245,245,245"] {
+  background: rgba(0,0,0,0.08) !important;
+  color: var(--text-color) !important;
   border-color: var(--gray-mid) !important;
 }
 
-/* Nav toggle hamburger barras → oscuras en light mode */
-[data-theme="light"] .nav-toggle span { background: var(--white); }
+/* ── BTN OUTLINE ── */
+[data-theme="light"] .btn-outline { border-color: rgba(0,0,0,0.3); color: var(--text-color); }
+[data-theme="light"] .btn-outline:hover { border-color: var(--red); color: var(--red); }
 
-/* ─────────────────────────────────────────────────────────────────────────── */
+/* ── HORARIOS TABLE ── */
+[data-theme="light"] .horarios-table td { border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .cell-open { color: #333333 !important; }
+
+/* ── NAV HAMBURGER ── */
+[data-theme="light"] .nav-toggle span { background: var(--text-color); }
+
+/* ── TABS ACTIVE (tinte rojo transparente) ── */
+[data-theme="light"] .eventos-tab:hover,
+[data-theme="light"] .eventos-tab.active,
+[data-theme="light"] .nov-tab:hover,
+[data-theme="light"] .nov-tab.active { color: var(--text-color); }
+
+/* ══════════════════════════════════════════════════════════════════════════ */
 
 </style>
 </head>
@@ -1575,7 +1610,7 @@
               </p>
               <div style="background: rgba(210,30,30,0.1); border: 1px solid rgba(210,30,30,0.2); padding: 15px;">
                 <p style="font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 1px; color: var(--red); margin-bottom: 4px; text-transform: uppercase; font-weight: 700;">Estado</p>
-                <p style="font-size: 13px; color: rgba(245,245,245,0.6); margin: 0;">Nómina de atletas y detalles de categorías por confirmar. Toda la cobertura disponible en nuestro Instagram oficial.</p>
+                <p style="font-size: 13px; color: var(--text-color); margin: 0;">Nómina de atletas y detalles de categorías por confirmar. Toda la cobertura disponible en nuestro Instagram oficial.</p>
               </div>
               <div class="evento-tags">
                 <span class="evento-tag">MMA</span>
@@ -1629,23 +1664,23 @@
               <div class="evento-resultados">
                 <div class="resultado-item">
                   <span style="font-size: 10px; color: var(--red);">●</span>
-                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Johan Patiño</strong> <span style="color: rgba(245,245,245,0.6); font-size: 13px; margin-left: 5px;">— Sumisión (Ámbar)</span></p>
+                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Johan Patiño</strong> <span style="color: var(--text-color); font-size: 13px; margin-left: 5px;">— Sumisión (Ámbar)</span></p>
                 </div>
                 <div class="resultado-item">
                   <span style="font-size: 10px; color: var(--red);">●</span>
-                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Cristian Ballesteros</strong> <span style="color: rgba(245,245,245,0.6); font-size: 13px; margin-left: 5px;">— Sumisión (Hadaka Jime)</span></p>
+                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Cristian Ballesteros</strong> <span style="color: var(--text-color); font-size: 13px; margin-left: 5px;">— Sumisión (Hadaka Jime)</span></p>
                 </div>
                 <div class="resultado-item">
                   <span style="font-size: 10px; color: var(--red);">●</span>
-                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Juan José Palomino</strong> <span style="color: rgba(245,245,245,0.6); font-size: 13px; margin-left: 5px;">— KO Técnico</span></p>
+                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Juan José Palomino</strong> <span style="color: var(--text-color); font-size: 13px; margin-left: 5px;">— KO Técnico</span></p>
                 </div>
                 <div class="resultado-item">
                   <span style="font-size: 10px; color: var(--red);">●</span>
-                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Juan Diego "Mamut" Jerez</strong> <span style="color: rgba(245,245,245,0.6); font-size: 13px; margin-left: 5px;">— Sumisión (Americana)</span></p>
+                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Juan Diego "Mamut" Jerez</strong> <span style="color: var(--text-color); font-size: 13px; margin-left: 5px;">— Sumisión (Americana)</span></p>
                 </div>
                 <div class="resultado-item">
                   <span style="font-size: 10px; color: var(--red);">●</span>
-                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Camilo Blanco</strong> <span style="color: rgba(245,245,245,0.6); font-size: 13px; margin-left: 5px;">— Sumisión (Mata León)🏆</span></p>
+                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Camilo Blanco</strong> <span style="color: var(--text-color); font-size: 13px; margin-left: 5px;">— Sumisión (Mata León)🏆</span></p>
                 </div>
               </div>
               <div class="evento-tags">
