@@ -20,7 +20,39 @@
       --gray-light: #888888;
       --white: #F5F5F5;
       --white-pure: #FFFFFF;
+      --nav-bg: rgba(10,10,10,0.95);
+      --hero-bg: #0A0A0A;
     }
+
+    [data-theme="light"] {
+      --black: #FFFFFF;
+      --black-mid: #F2F2F2;
+      --black-light: #E6E6E6;
+      --gray: #CCCCCC;
+      --gray-mid: #999999;
+      --gray-light: #555555;
+      --white: #0A0A0A;
+      --white-pure: #000000;
+      --nav-bg: rgba(255,255,255,0.97);
+      --hero-bg: #F2F2F2;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--gray);
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, background 0.2s;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .theme-toggle:hover { border-color: var(--red); background: rgba(208,2,27,0.08); }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -31,6 +63,7 @@
       color: var(--white);
       font-family: 'Barlow', sans-serif;
       overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
     }
 
     /* ─── NAVBAR ─────────────────────────────────── */
@@ -38,7 +71,7 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 1000;
-      background: rgba(10,10,10,0.95);
+      background: var(--nav-bg);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid rgba(208,2,27,0.3);
       display: flex;
@@ -133,7 +166,7 @@
     .hero-bg {
       position: absolute;
       inset: 0;
-      background: #0A0A0A;
+      background: var(--hero-bg);
       z-index: 0;
     }
 
@@ -1412,6 +1445,7 @@
     <div class="nav-logo">
       <a href="#" aria-label="Inicio"><img src="logo-ifmma.png" alt="International Fight MMA"></a>
     </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">🌙</button>
     <button class="nav-toggle" id="navToggle" aria-label="Menú">
       <span></span><span></span><span></span>
     </button>
@@ -2883,6 +2917,28 @@ function toggleMute(btn) {
       function() { slidePersonalizado(1); },
       function() { slidePersonalizado(-1); }
     );
+
+    // ── THEME TOGGLE ──────────────────────────────
+    (function() {
+      var btn = document.getElementById('themeToggle');
+      var saved = localStorage.getItem('ifmma-theme');
+      if (saved === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        btn.textContent = '☀️';
+      }
+      btn.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        if (current === 'light') {
+          document.documentElement.removeAttribute('data-theme');
+          btn.textContent = '🌙';
+          localStorage.setItem('ifmma-theme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          btn.textContent = '☀️';
+          localStorage.setItem('ifmma-theme', 'light');
+        }
+      });
+    })();
   </script>
 </body>
 </html>
