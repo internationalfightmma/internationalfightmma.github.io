@@ -586,7 +586,7 @@
       transform: translateY(-50%);
       z-index: 10;
       background: rgba(0,0,0,0.6);
-      color: white;
+      color: var(--white);
       border: none;
       width: 32px;
       height: 32px;
@@ -1262,11 +1262,11 @@
 .novedad-h { display: grid; grid-template-columns: 38% 62%; background: var(--black-mid); border: 1px solid var(--gray); min-height: 300px; }
 .novedad-h-media { position: relative; overflow: hidden; background: #000; }
 .novedad-h-media img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
-.novedad-play-btn { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 48px; color: #fff; background: rgba(0,0,0,0.35); text-decoration: none; transition: background 0.2s; }
+.novedad-play-btn { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--white); background: rgba(0,0,0,0.35); text-decoration: none; transition: background 0.2s; }
 .novedad-play-btn:hover { background: rgba(193,0,0,0.55); }
 .novedad-h-info { padding: 36px 44px; display: flex; flex-direction: column; gap: 8px; }
 .novedad-h-badge { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; padding: 4px 10px; border-radius: 2px; font-weight: 700; width: fit-content; }
-.novedad-h-badge.anuncio { background: var(--red); color: #fff; }
+.novedad-h-badge.anuncio { background: var(--red); color: var(--white); }
 .novedad-h-badge.cronica { background: rgba(245,245,245,0.12); color: var(--white-pure); border: 1px solid var(--gray); }
 .novedad-h-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1.5px; color: var(--white-pure); line-height: 1.1; margin: 0; }
 .novedad-h-meta { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--red); }
@@ -1274,9 +1274,9 @@
 
 /* -- NOVEDADES SLIDE BADGES -- */
 .novedad-slide-badge { position: absolute; top: 16px; left: 16px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; padding: 5px 12px; border-radius: 2px; font-weight: 700; z-index: 2; }
-.novedad-slide-badge.anuncio { background: var(--red); color: #fff; }
-.novedad-slide-badge.cronica { background: rgba(0,0,0,0.7); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
-.novedad-play-btn { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 56px; color: #fff; text-decoration: none; background: rgba(0,0,0,0.3); transition: background 0.2s; z-index: 1; }
+.novedad-slide-badge.anuncio { background: var(--red); color: var(--white); }
+.novedad-slide-badge.cronica { background: rgba(0,0,0,0.7); color: var(--white); border: 1px solid rgba(255,255,255,0.3); }
+.novedad-play-btn { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 56px; color: var(--white); text-decoration: none; background: rgba(0,0,0,0.3); transition: background 0.2s; z-index: 1; }
 .novedad-play-btn:hover { background: rgba(193,0,0,0.5); }
 
 /* ── NOVEDADES TABS (titulo por novedad) ── */
@@ -1284,7 +1284,7 @@
 .nov-tab { background: transparent; border: 1px solid var(--gray-mid); color: var(--gray-light); padding: 10px 20px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; }
 .nov-tab:hover, .nov-tab.active { border-color: var(--red); color: var(--white-pure); background: rgba(208,2,27,0.08); }
 /* mute button for nov video */
-.nov-mute-btn { position: absolute; bottom: 14px; right: 14px; z-index: 10; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; cursor: pointer; }
+.nov-mute-btn { position: absolute; bottom: 14px; right: 14px; z-index: 10; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.3); color: var(--white); padding: 6px 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; cursor: pointer; }
 
 /* ── NOVEDADES SLIDER ── */
 .nov-outer { overflow: hidden; width: 100%; }
@@ -1298,8 +1298,8 @@
 .nov-media-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
 .nov-media-slide.active { opacity: 1; pointer-events: auto; }
 .novedad-slide-badge { position: absolute; top: 14px; left: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; padding: 4px 10px; font-weight: 700; z-index: 3; }
-.novedad-slide-badge.anuncio { background: var(--red); color: #fff; }
-.novedad-slide-badge.cronica { background: rgba(0,0,0,0.7); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+.novedad-slide-badge.anuncio { background: var(--red); color: var(--white); }
+.novedad-slide-badge.cronica { background: rgba(0,0,0,0.7); color: var(--white); border: 1px solid rgba(255,255,255,0.25); }
 .nov-info { padding: 32px 40px; background: var(--black-mid); border: 1px solid var(--gray); border-left: none; position: relative; }
 .nov-info-slide { display: none; }
 .nov-info-slide.active { display: flex; flex-direction: column; }
@@ -1416,9 +1416,9 @@
 #certModal.open { display: flex; }
 .cert-modal-box { background: #1a1a1a; border-radius: 10px; width: min(90vw, 820px); max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.7); }
 .cert-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-.cert-modal-header span { color: #fff; font-weight: 700; font-size: 15px; }
+.cert-modal-header span { color: var(--white); font-weight: 700; font-size: 15px; }
 .cert-modal-close { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 26px; cursor: pointer; line-height: 1; padding: 0; }
-.cert-modal-close:hover { color: #fff; }
+.cert-modal-close:hover { color: var(--white); }
 .cert-modal-body { flex: 1; overflow: hidden; }
 .cert-modal-body iframe { width: 100%; height: 75vh; border: none; display: block; }
 
@@ -2559,8 +2559,10 @@
 
     // NAV SCROLL EFFECT
     window.addEventListener('scroll', () => {
-      document.getElementById('navbar').style.background =
-        window.scrollY > 50 ? 'rgba(10,10,10,0.98)' : 'rgba(10,10,10,0.95)';
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const darkBg = window.scrollY > 50 ? 'rgba(10,10,10,0.98)' : 'rgba(10,10,10,0.95)';
+      const lightBg = window.scrollY > 50 ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.95)';
+      document.getElementById('navbar').style.background = isLight ? lightBg : darkBg;
     });
 
     // STATS COUNTER
