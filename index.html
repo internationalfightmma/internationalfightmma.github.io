@@ -32,6 +32,15 @@
       --white-pure: #000000;
     }
 
+    [data-theme="light"] nav {
+      background: #FFFFFF;
+    }
+
+    [data-theme="light"] .nav-links a,
+    [data-theme="light"] .nav-link {
+      color: #111111 !important;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html { scroll-behavior: smooth; }
@@ -781,7 +790,7 @@
     .cell-wrestling { color: #81C784; }
     .cell-mma { color: var(--red); }
     .cell-cond { color: #CE93D8; }
-    .cell-open { color: #F5F5F5; }
+    .cell-open { color: var(--white); }
     .cell-sparring { color: #FF8A65; }
     .cell-empty { color: var(--gray-mid); }
 
