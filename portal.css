@@ -9,7 +9,27 @@
   --gray-light: #888888;
   --white: #F5F5F5;
   --white-pure: #FFFFFF;
+  --nav-bg: rgba(10,10,10,0.97);
 }
+
+[data-theme="light"] {
+  --black: #FFFFFF;
+  --black-mid: #F2F2F2;
+  --black-light: #E6E6E6;
+  --gray: #CCCCCC;
+  --gray-mid: #999999;
+  --gray-light: #555555;
+  --white: #0A0A0A;
+  --white-pure: #000000;
+  --nav-bg: rgba(255,255,255,0.97);
+}
+
+[data-theme="light"] .role-badge.admin { color: #FFFFFF; }
+[data-theme="light"] .role-badge.student { color: #FFFFFF; }
+[data-theme="light"] .btn-primary { color: #FFFFFF; }
+[data-theme="light"] .badge-paid { color: #166534; background: rgba(0,180,80,0.15); }
+[data-theme="light"] .badge-pending { color: #92400e; background: rgba(255,170,0,0.15); }
+[data-theme="light"] .badge-overdue { color: #991b1b; background: rgba(208,2,27,0.12); }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -18,6 +38,7 @@ body {
   color: var(--white);
   font-family: 'Barlow', sans-serif;
   min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
 }
 
 /* ── NAV ── */
@@ -27,7 +48,7 @@ body {
   justify-content: space-between;
   padding: 0 2rem;
   height: 60px;
-  background: rgba(10,10,10,0.97);
+  background: var(--nav-bg);
   border-bottom: 2px solid var(--red);
   position: sticky;
   top: 0;

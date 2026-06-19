@@ -45,6 +45,7 @@
   <nav class="portal-nav">
     <a href="index.html" class="logo">IF<span>M</span></a>
     <div class="nav-user">
+      <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema" style="background:none;border:1px solid var(--gray);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;flex-shrink:0">🌙</button>
       <span class="role-badge" id="nav-role-badge">—</span>
       <span class="user-email" id="nav-user-email"></span>
       <button class="btn-logout" id="logout-btn">Salir</button>
@@ -509,6 +510,28 @@ async function loadMyAttendance(userId) {
 }
 
 init();
+
+// ── THEME TOGGLE (sincronizado con index.html via localStorage) ──
+(function() {
+  var btn = document.getElementById('themeToggle');
+  var saved = localStorage.getItem('ifmma-theme');
+  if (saved === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    btn.textContent = '☀️';
+  }
+  btn.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    if (current === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+      btn.textContent = '🌙';
+      localStorage.setItem('ifmma-theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      btn.textContent = '☀️';
+      localStorage.setItem('ifmma-theme', 'light');
+    }
+  });
+})();
 </script>
 </body>
 </html>

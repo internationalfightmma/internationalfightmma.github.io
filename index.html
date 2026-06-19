@@ -1436,6 +1436,49 @@
 .cert-modal-body { flex: 1; overflow: hidden; }
 .cert-modal-body iframe { width: 100%; height: 75vh; border: none; display: block; }
 
+/* ── LIGHT MODE OVERRIDES ──────────────────────────────────────────────────── */
+
+/* Nav CTA siempre texto blanco (fondo rojo) */
+[data-theme="light"] .nav-cta,
+[data-theme="light"] .nav-cta:hover { color: #FFFFFF !important; }
+
+/* Nombres y resultados en tarjetas de eventos (fondo claro en light mode) */
+[data-theme="light"] .resultado-item strong,
+[data-theme="light"] .resultado-item p span { color: var(--white) !important; }
+
+/* Párrafos de descripción en novedades con color rgba(245,...) inline */
+[data-theme="light"] .nov-info-slide p,
+[data-theme="light"] .evento-info p { color: var(--white) !important; }
+
+/* Badges de vidrio: fondo semitransparente blanco → oscuro en light mode */
+[data-theme="light"] .nov-info-slide .evento-badge[style*="rgba(245,245,245"] {
+  background: rgba(0,0,0,0.08) !important;
+  color: var(--white) !important;
+  border-color: var(--gray-mid) !important;
+}
+
+/* Textos con color heredado en secciones de contenido */
+[data-theme="light"] .evento-titulo { color: var(--white); }
+[data-theme="light"] .novedad-titulo { color: var(--white); }
+[data-theme="light"] .afiliacion-nombre { color: var(--white); }
+[data-theme="light"] .personalizado-nombre { color: var(--white); }
+[data-theme="light"] .novedad-h-titulo { color: var(--white); }
+[data-theme="light"] .nov-titulo-text { color: var(--white); }
+[data-theme="light"] .evento-meta { color: var(--gray-light); }
+
+/* Badge "cronica/video" de vidrio en novedades */
+[data-theme="light"] .novedad-h-badge.cronica,
+[data-theme="light"] .novedad-slide-badge.cronica {
+  background: rgba(0,0,0,0.08) !important;
+  color: var(--white) !important;
+  border-color: var(--gray-mid) !important;
+}
+
+/* Nav toggle hamburger barras → oscuras en light mode */
+[data-theme="light"] .nav-toggle span { background: var(--white); }
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 </style>
 </head>
 <body>
