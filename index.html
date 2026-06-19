@@ -41,6 +41,27 @@
       color: #111111 !important;
     }
 
+    /* ─── LIGHT MODE OVERRIDES ───────────────────── */
+    [data-theme="light"] .hero-bg { background: #EEEEEE; }
+    [data-theme="light"] .btn-outline { border-color: rgba(0,0,0,0.25); color: #111111; }
+    [data-theme="light"] .horarios-table td { border-color: rgba(0,0,0,0.1); }
+    [data-theme="light"] .cert-modal-box { background: var(--black-mid); }
+    [data-theme="light"] .cert-modal-header { border-bottom-color: rgba(0,0,0,0.15); }
+    [data-theme="light"] .novedad-h-badge.cronica { background: rgba(0,0,0,0.06); }
+    [data-theme="light"] .media-dot { background: rgba(0,0,0,0.2); }
+    [data-theme="light"] .resultado-item { background: rgba(0,0,0,0.03); }
+    [data-theme="light"] .peleador-logros li,
+    [data-theme="light"] .plan-features li,
+    [data-theme="light"] .alliance-text p,
+    [data-theme="light"] .evento-texto,
+    [data-theme="light"] .novedad-desc,
+    [data-theme="light"] .afiliacion-texto,
+    [data-theme="light"] .personalizado-texto,
+    [data-theme="light"] .novedad-h-desc { color: rgba(0,0,0,0.7); }
+    [data-theme="light"] .info-block p,
+    [data-theme="light"] .info-block a { color: rgba(0,0,0,0.7); }
+    [data-theme="light"] .academia-foto-counter { color: rgba(0,0,0,0.7); background: rgba(255,255,255,0.75); }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html { scroll-behavior: smooth; }
@@ -1572,23 +1593,23 @@
               <div class="evento-resultados">
                 <div class="resultado-item">
                   <span style="font-size: 10px; color: var(--red);">●</span>
-                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Johan Patiño</strong> <span style="color: rgba(245,245,245,0.6); font-size: 13px; margin-left: 5px;">— Sumisión (Ámbar)</span></p>
+                  <p style="font-size: 14px; margin: 0;"><strong style="color: var(--white-pure);">Johan Patiño</strong> <span style="color: var(--gray-light); font-size: 13px; margin-left: 5px;">— Sumisión (Ámbar)</span></p>
                 </div>
                 <div class="resultado-item">
                   <span style="font-size: 10px; color: var(--red);">●</span>
-                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Cristian Ballesteros</strong> <span style="color: rgba(245,245,245,0.6); font-size: 13px; margin-left: 5px;">— Sumisión (Hadaka Jime)</span></p>
+                  <p style="font-size: 14px; margin: 0;"><strong style="color: var(--white-pure);">Cristian Ballesteros</strong> <span style="color: var(--gray-light); font-size: 13px; margin-left: 5px;">— Sumisión (Hadaka Jime)</span></p>
                 </div>
                 <div class="resultado-item">
                   <span style="font-size: 10px; color: var(--red);">●</span>
-                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Juan José Palomino</strong> <span style="color: rgba(245,245,245,0.6); font-size: 13px; margin-left: 5px;">— KO Técnico</span></p>
+                  <p style="font-size: 14px; margin: 0;"><strong style="color: var(--white-pure);">Juan José Palomino</strong> <span style="color: var(--gray-light); font-size: 13px; margin-left: 5px;">— KO Técnico</span></p>
                 </div>
                 <div class="resultado-item">
                   <span style="font-size: 10px; color: var(--red);">●</span>
-                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Juan Diego "Mamut" Jerez</strong> <span style="color: rgba(245,245,245,0.6); font-size: 13px; margin-left: 5px;">— Sumisión (Americana)</span></p>
+                  <p style="font-size: 14px; margin: 0;"><strong style="color: var(--white-pure);">Juan Diego "Mamut" Jerez</strong> <span style="color: var(--gray-light); font-size: 13px; margin-left: 5px;">— Sumisión (Americana)</span></p>
                 </div>
                 <div class="resultado-item">
                   <span style="font-size: 10px; color: var(--red);">●</span>
-                  <p style="font-size: 14px; margin: 0;"><strong style="color: #fff;">Camilo Blanco</strong> <span style="color: rgba(245,245,245,0.6); font-size: 13px; margin-left: 5px;">— Sumisión (Mata León)🏆</span></p>
+                  <p style="font-size: 14px; margin: 0;"><strong style="color: var(--white-pure);">Camilo Blanco</strong> <span style="color: var(--gray-light); font-size: 13px; margin-left: 5px;">— Sumisión (Mata León)🏆</span></p>
                 </div>
               </div>
               <div class="evento-tags">
@@ -1634,7 +1655,7 @@
                   <div class="novedad-slide-badge anuncio">ANUNCIO</div>
                   <img src="https://drive.google.com/thumbnail?id=1EuDm7dysMp7C89GYOxIoOvkST4WEtMnO&sz=w1600"
                        alt="Anuncio Seminario Muay Thai"
-                       style="width:100%;height:100%;object-fit:contain;background:#111;">
+                       style="width:100%;height:100%;object-fit:contain;background:var(--black-mid);">
                 </div>
 
                 <!-- Slide 2: CRÓNICA foto -->
@@ -1670,22 +1691,22 @@
                 <div class="nov-info-slide active">
                   <div class="evento-badge" style="background:var(--red);color:#fff;margin-bottom:12px;">ANUNCIO · 13 JUNIO 2026</div>
                   <h3 class="evento-titulo" style="font-size:28px;">SEMINARIO DE MUAY THAI<br><span style="font-size:0.6em;color:var(--red);">TRADICIONAL Y DE COMPETICIÓN</span></h3>
-                  <p style="font-size:14px;line-height:1.7;color:rgba(245,245,245,0.8);margin:14px 0;">Instructor <strong>Carlos Sánchez Gutiérrez</strong>, con experiencia junto a las grandes leyendas del Muay Thai en España, Francia y Portugal. Una única fecha en Colombia, en nuestra casa, para todos los niveles. Diplomas de participación para todos los asistentes.</p>
+                  <p style="font-size:14px;line-height:1.7;color:var(--white);margin:14px 0;">Instructor <strong>Carlos Sánchez Gutiérrez</strong>, con experiencia junto a las grandes leyendas del Muay Thai en España, Francia y Portugal. Una única fecha en Colombia, en nuestra casa, para todos los niveles. Diplomas de participación para todos los asistentes.</p>
                   <div class="evento-meta" style="margin-bottom:12px;">📍 Cra 23 #46A-04 · Bucaramanga &nbsp;|&nbsp; ⏰ 9:00 AM – 11:00 AM</div>
                   <a href="https://wa.me/573195923634?text=Hola,%20quiero%20información%20sobre%20próximos%20seminarios%20en%20IFM" target="_blank" class="plan-cta" style="display:inline-block;">Próximos eventos por WA</a>
                 </div>
                 <div class="nov-info-slide">
-                  <div class="evento-badge" style="background:rgba(245,245,245,0.1);color:#fff;border:1px solid var(--gray);margin-bottom:12px;">CRÓNICA · 13 JUNIO 2026</div>
+                  <div class="evento-badge" style="background:var(--black-light);color:var(--white-pure);border:1px solid var(--gray);margin-bottom:12px;">CRÓNICA · 13 JUNIO 2026</div>
                   <h3 class="evento-titulo" style="font-size:28px;">TODO UN ÉXITO</h3>
                   <div style="background:var(--red);padding:10px;text-align:center;margin:10px 0;">
                     <p style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;margin:0;letter-spacing:1px;">MÁS DE 30 PERSONAS · NIVEL TOTAL</p>
                   </div>
-                  <p style="font-size:14px;line-height:1.7;color:rgba(245,245,245,0.8);margin:10px 0;">Una jornada memorable que reunió atletas de todos los niveles. Aprendizaje, cultura y tradición marcial en una sola mañana. El seminario dejó huella en nuestra academia y en todos los asistentes. ¡Hasta la próxima!</p>
+                  <p style="font-size:14px;line-height:1.7;color:var(--white);margin:10px 0;">Una jornada memorable que reunió atletas de todos los niveles. Aprendizaje, cultura y tradición marcial en una sola mañana. El seminario dejó huella en nuestra academia y en todos los asistentes. ¡Hasta la próxima!</p>
                 </div>
                 <div class="nov-info-slide">
-                  <div class="evento-badge" style="background:rgba(245,245,245,0.1);color:#fff;border:1px solid var(--gray);margin-bottom:12px;">VIDEO · 13 JUNIO 2026</div>
+                  <div class="evento-badge" style="background:var(--black-light);color:var(--white-pure);border:1px solid var(--gray);margin-bottom:12px;">VIDEO · 13 JUNIO 2026</div>
                   <h3 class="evento-titulo" style="font-size:28px;">VIDEO DEL SEMINARIO</h3>
-                  <p style="font-size:14px;line-height:1.7;color:rgba(245,245,245,0.8);margin:14px 0;">Revive los mejores momentos del seminario de Muay Thai con Carlos Sánchez. Más de 30 atletas compartieron esta experiencia única en nuestra academia.</p>
+                  <p style="font-size:14px;line-height:1.7;color:var(--white);margin:14px 0;">Revive los mejores momentos del seminario de Muay Thai con Carlos Sánchez. Más de 30 atletas compartieron esta experiencia única en nuestra academia.</p>
                 </div>
               </div>
 
