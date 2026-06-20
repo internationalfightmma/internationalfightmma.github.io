@@ -62,19 +62,19 @@
 
     <!-- Stats row -->
     <div class="stats-grid" id="admin-stats">
-      <div class="stat-card">
+      <div class="stat-card stat-card-clickable" onclick="window.openStatModal('all')" title="Ver lista completa">
         <div class="stat-label">Estudiantes activos</div>
         <div class="stat-value" id="stat-total">—</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card stat-card-clickable" onclick="window.openStatModal('paid')" title="Ver lista">
         <div class="stat-label">Pagos al día</div>
         <div class="stat-value" id="stat-paid">—</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card stat-card-clickable" onclick="window.openStatModal('pending')" title="Ver lista">
         <div class="stat-label">Pagos pendientes</div>
         <div class="stat-value" id="stat-pending">—</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card stat-card-clickable" onclick="window.openStatModal('overdue')" title="Ver lista">
         <div class="stat-label">Vencidos</div>
         <div class="stat-value" id="stat-overdue">—</div>
       </div>
@@ -91,11 +91,13 @@
           <table class="data-table">
             <thead>
               <tr>
+                <th style="width:40px"></th>
                 <th>Nombre</th>
                 <th>Email</th>
                 <th>Disciplina</th>
                 <th>Pago</th>
-                <th>Vence</th>
+                <th>Días</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="students-tbody"></tbody>
@@ -210,6 +212,17 @@
     </div>
   </div>
 
+  <!-- STAT MODAL -->
+  <div id="stat-modal" class="stat-modal-overlay">
+    <div class="stat-modal-box">
+      <div class="stat-modal-header">
+        <h3 id="stat-modal-title">Lista</h3>
+        <button class="stat-modal-close" id="stat-modal-close">✕</button>
+      </div>
+      <div class="stat-modal-body" id="stat-modal-body"></div>
+    </div>
+  </div>
+
 </div><!-- /portal-screen -->
 
 <script type="module">
@@ -236,6 +249,65 @@ function fmtDate(iso) {
   if (!iso) return '—';
   return new Date(iso).toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
 }
+
+function daysUntil(isoDate) {
+  if (!isoDate) return null;
+  const due = new Date(isoDate);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  due.setHours(0,0,0,0);
+  return Math.round((due - today) / (1000*60*60*24));
+}
+
+function daysHtml(days) {
+  if (days === null) return '<span style="color:var(--gray-mid)">—</span>';
+  if (days < 0) return `<span style="color:#f87171;font-weight:700">Venc. ${Math.abs(days)}d</span>`;
+  if (days <= 4) return `<span style="color:#fbbf24;font-weight:700">${days}d</span>`;
+  return `<span style="color:var(--white)">${days}d</span>`;
+}
+
+function avatarHtml(s) {
+  if (s.avatar_url) return `<img src="${s.avatar_url}" class="tbl-avatar">`;
+  const initials = (s.full_name || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  return `<div class="tbl-avatar tbl-avatar-initials">${initials}</div>`;
+}
+
+function waBtn(s, days) {
+  if (s.payment_status !== 'pending' && s.payment_status !== 'overdue') return '';
+  const phone = (s.phone || '').replace(/\D/g,'');
+  if (!phone) return '<span class="wa-notel">Sin tel.</span>';
+  const name = (s.full_name || 'Estudiante').split(' ')[0];
+  const daysText = days === null ? 'vence pronto'
+    : days < 0 ? `venció hace ${Math.abs(days)} días`
+    : `vence en ${days} días`;
+  const msg = encodeURIComponent(`Hola ${name}, tu mensualidad del IFM ${daysText}. Recuerda realizar tu pago de $150.000 COP. ¡Gracias!`);
+  return `<a href="https://wa.me/${phone}?text=${msg}" target="_blank" class="btn-wa">WA</a>`;
+}
+
+function openStatModal(filter) {
+  const students = window._allStudents || [];
+  const labels = { all: 'Todos los estudiantes', paid: 'Pagos al día', pending: 'Pagos pendientes', overdue: 'Vencidos' };
+  const filtered = filter === 'all' ? students : students.filter(s => s.payment_status === filter);
+  $('stat-modal-title').textContent = `${labels[filter] || filter} (${filtered.length})`;
+  $('stat-modal-body').innerHTML = filtered.length === 0
+    ? '<p style="color:var(--gray-light);padding:1rem 0">Sin registros en esta categoría.</p>'
+    : `<div style="overflow-x:auto"><table class="data-table">
+        <thead><tr><th style="width:40px"></th><th>Nombre</th><th>Email</th><th>Pago</th><th>Días</th><th></th></tr></thead>
+        <tbody>${filtered.map(s => {
+          const d = daysUntil(s.payment_due_date);
+          return `<tr>
+            <td>${avatarHtml(s)}</td>
+            <td>${s.full_name || '—'}</td>
+            <td>${s.email || '—'}</td>
+            <td>${payBadge(s.payment_status)}</td>
+            <td>${daysHtml(d)}</td>
+            <td>${waBtn(s, d)}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>`;
+  $('stat-modal').style.display = 'flex';
+}
+window.openStatModal = openStatModal;
 
 /* ── session init ── */
 async function init() {
@@ -337,7 +409,7 @@ async function loadAdminDashboard() {
 async function loadStudents() {
   const { data: students, error } = await supabase
     .from('profiles')
-    .select('id, full_name, email, discipline, payment_status, payment_due_date')
+    .select('id, full_name, email, discipline, payment_status, payment_due_date, phone, avatar_url')
     .eq('role', 'student')
     .order('full_name');
 
@@ -345,23 +417,27 @@ async function loadStudents() {
 
   if (error || !students || students.length === 0) {
     show('students-empty');
-    updateStats([], []);
+    updateStats([]);
     return;
   }
 
+  window._allStudents = students;
   show('students-table-wrap');
   const tbody = $('students-tbody');
-  tbody.innerHTML = students.map(s => `
-    <tr>
+  tbody.innerHTML = students.map(s => {
+    const days = daysUntil(s.payment_due_date);
+    return `<tr>
+      <td>${avatarHtml(s)}</td>
       <td>${s.full_name || '—'}</td>
       <td>${s.email || '—'}</td>
       <td>${s.discipline || '—'}</td>
       <td>${payBadge(s.payment_status)}</td>
-      <td>${fmtDate(s.payment_due_date)}</td>
-    </tr>
-  `).join('');
+      <td>${daysHtml(days)}</td>
+      <td>${waBtn(s, days)}</td>
+    </tr>`;
+  }).join('');
 
-  updateStats(students, []);
+  updateStats(students);
 }
 
 function updateStats(students) {
@@ -511,6 +587,11 @@ async function loadMyAttendance(userId) {
 }
 
 init();
+
+// ── MODAL CLOSE ──
+document.getElementById('stat-modal-close').addEventListener('click', () => { $('stat-modal').style.display = 'none'; });
+document.getElementById('stat-modal').addEventListener('click', e => { if (e.target === $('stat-modal')) $('stat-modal').style.display = 'none'; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('stat-modal').style.display = 'none'; });
 
 // ── THEME TOGGLE (sincronizado con index.html via localStorage) ──
 (function() {

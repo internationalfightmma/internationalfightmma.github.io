@@ -297,6 +297,112 @@ body {
   line-height: 1;
 }
 
+.stat-card-clickable {
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.stat-card-clickable:hover {
+  border-left-color: var(--red);
+  transform: translateY(-2px);
+}
+.stat-card-clickable:hover .stat-value { color: var(--red); }
+
+/* ── STAT MODAL ── */
+.stat-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.82);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.stat-modal-box {
+  background: var(--black-mid);
+  border: 1px solid var(--gray);
+  border-top: 3px solid var(--red);
+  border-radius: 6px;
+  width: 100%;
+  max-width: 860px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.stat-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--gray);
+  background: var(--black-light);
+  flex-shrink: 0;
+}
+.stat-modal-header h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--white-pure);
+}
+.stat-modal-close {
+  background: none;
+  border: none;
+  color: var(--gray-light);
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+.stat-modal-close:hover { color: var(--red); }
+.stat-modal-body {
+  padding: 1.25rem 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── TABLE AVATAR ── */
+.tbl-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.tbl-avatar-initials {
+  background: var(--gray);
+  border: 1px solid var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.8rem;
+  color: var(--white-pure);
+  flex-shrink: 0;
+}
+
+/* ── WA BUTTON ── */
+.btn-wa {
+  display: inline-block;
+  padding: 3px 8px;
+  background: rgba(37,211,102,0.12);
+  color: #25D366;
+  border: 1px solid rgba(37,211,102,0.3);
+  border-radius: 3px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.btn-wa:hover { background: rgba(37,211,102,0.25); }
+.wa-notel { color: var(--gray-mid); font-size: 0.7rem; }
+
 /* ── SECTION CARD ── */
 .section-card {
   background: var(--black-mid);
