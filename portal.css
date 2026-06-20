@@ -820,3 +820,84 @@ body {
 .att-leg-present::before { background: rgba(0,180,80,0.2); border: 1px solid rgba(0,180,80,0.35); }
 .att-leg-absent::before  { background: rgba(208,2,27,0.15); border: 1px solid rgba(208,2,27,0.3); }
 .att-leg-none::before    { background: var(--black-light); border: 1px solid var(--gray); }
+
+/* ── CALENDAR DAY CLICKABLE ── */
+.att-clickable { cursor: pointer; transition: opacity 0.15s; }
+.att-clickable:hover { opacity: 0.7; }
+
+/* ── DAY SCHEDULE MODAL ── */
+.day-modal-box { max-width: 380px; }
+.day-sched-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--gray);
+}
+.day-sched-item:last-child { border-bottom: none; }
+.day-sched-time {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+  color: var(--gray-light);
+  white-space: nowrap;
+  min-width: 108px;
+}
+.day-sched-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.type-bjj       { color: #4FC3F7; }
+.type-muay      { color: #FFB74D; }
+.type-wrestling { color: #81C784; }
+.type-mma       { color: var(--red); }
+.type-cond      { color: #CE93D8; }
+.type-open      { color: var(--white); }
+.type-sparring  { color: #FF8A65; }
+
+/* ── WEEKLY BAR CHART ── */
+.att-weekly-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray);
+}
+.att-weekly-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gray-light);
+  margin-bottom: 0.6rem;
+}
+.att-weekly-chart { display: flex; flex-direction: column; gap: 5px; }
+.week-bar-row { display: flex; align-items: center; gap: 0.5rem; }
+.week-bar-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--gray-light);
+  min-width: 22px;
+}
+.week-bar-track {
+  flex: 1;
+  height: 13px;
+  background: var(--black-light);
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+}
+.week-bar-seg { height: 100%; }
+.week-bar-p { background: rgba(0,180,80,0.55); }
+.week-bar-a { background: rgba(208,2,27,0.5); }
+.week-bar-count {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  color: var(--gray-light);
+  min-width: 54px;
+  text-align: right;
+}

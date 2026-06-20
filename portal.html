@@ -153,7 +153,10 @@
             <div class="std-avatar-wrap">
               <img id="profile-photo" class="std-avatar-img" src="" alt="Foto de perfil" style="display:none">
               <div class="std-avatar-initials" id="profile-avatar">?</div>
-              <button class="std-avatar-change-btn" disabled>Cambiar foto</button>
+              <label class="std-avatar-change-btn">
+                Cambiar foto
+                <input type="file" id="photo-input" accept="image/*" style="display:none">
+              </label>
             </div>
             <h2 class="std-name" id="profile-name">—</h2>
             <p class="std-meta" id="profile-email">—</p>
@@ -195,6 +198,10 @@
               <span class="att-leg att-leg-absent">Ausente</span>
               <span class="att-leg att-leg-none">Sin registro</span>
             </div>
+            <div class="att-weekly-section">
+              <div class="att-weekly-title">Asistencia por semana</div>
+              <div id="att-weekly-chart" class="att-weekly-chart"></div>
+            </div>
           </div>
           <p id="my-attendance-empty" style="display:none;color:var(--gray-light);font-size:0.9rem">
             Sin registros de asistencia.
@@ -202,6 +209,20 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- DAY SCHEDULE MODAL -->
+  <div id="day-modal" class="stat-modal-overlay">
+    <div class="stat-modal-box day-modal-box">
+      <div class="stat-modal-header">
+        <div>
+          <h3 id="day-modal-date">—</h3>
+          <div id="day-modal-att" style="font-size:0.8rem;margin-top:3px"></div>
+        </div>
+        <button class="stat-modal-close" id="day-modal-close">✕</button>
+      </div>
+      <div class="stat-modal-body" id="day-modal-schedule"></div>
     </div>
   </div>
 
@@ -589,7 +610,100 @@ async function loadMyPayments(userId) {
 
 let _attRecords = {}, _attYear = 0, _attMonth = 0, _attListenersAdded = false;
 const MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAY_NAMES   = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const DAY_LABELS  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+const SCHEDULE = {
+  0: [], // Domingo — descanso
+  1: [   // Lunes
+    { time: '6:00–7:00 AM',  name: 'Jiu Jitsu',          type: 'bjj'      },
+    { time: '7:00–8:00 AM',  name: 'Jiu Jitsu',          type: 'bjj'      },
+    { time: '6:30–7:45 PM',  name: 'Muay Thai',          type: 'muay'     },
+    { time: '7:45–9:00 PM',  name: 'BJJ Gi',             type: 'bjj'      },
+  ],
+  2: [   // Martes
+    { time: '6:00–8:00 AM',  name: 'Muay Thai Sparring', type: 'sparring' },
+    { time: '6:30–7:45 PM',  name: 'BJJ No-Gi',          type: 'bjj'      },
+    { time: '7:45–9:00 PM',  name: 'Muay Thai',          type: 'muay'     },
+  ],
+  3: [   // Miércoles
+    { time: '6:00–7:00 AM',  name: 'Jiu Jitsu',          type: 'bjj'      },
+    { time: '7:00–8:00 AM',  name: 'Jiu Jitsu',          type: 'bjj'      },
+    { time: '6:30–7:45 PM',  name: 'Wrestling',          type: 'wrestling'},
+    { time: '7:45–9:00 PM',  name: 'MMA',                type: 'mma'      },
+  ],
+  4: [   // Jueves
+    { time: '6:00–8:00 AM',  name: 'Acondicionamiento',  type: 'cond'     },
+    { time: '6:30–7:45 PM',  name: 'BJJ Gi',             type: 'bjj'      },
+    { time: '7:45–9:00 PM',  name: 'BJJ No-Gi',          type: 'bjj'      },
+  ],
+  5: [   // Viernes
+    { time: '6:00–7:00 AM',  name: 'Jiu Jitsu',          type: 'bjj'      },
+    { time: '7:00–8:00 AM',  name: 'Jiu Jitsu',          type: 'bjj'      },
+    { time: '6:30–7:45 PM',  name: 'Muay Thai',          type: 'muay'     },
+    { time: '7:45–9:00 PM',  name: 'MMA',                type: 'mma'      },
+  ],
+  6: [   // Sábado
+    { time: '9:00–10:00 AM', name: 'BJJ Open Mat',       type: 'open'     },
+    { time: '10:00–11:00 AM',name: 'Sparring Libre',     type: 'sparring' },
+  ],
+};
+
+function openDayModal(dateKey, dow) {
+  const parts = dateKey.split('-');
+  const dateLabel = `${parseInt(parts[2])} de ${MONTH_NAMES[parseInt(parts[1])-1]} ${parts[0]} — ${DAY_NAMES[dow]}`;
+  const st = _attRecords[dateKey];
+  const attHtml = st === 'present' ? '<span style="color:#4ade80">● Presente</span>'
+    : st === 'absent' ? '<span style="color:#f87171">● Ausente</span>'
+    : '<span style="color:var(--gray-mid)">● Sin registro</span>';
+
+  const sched = SCHEDULE[dow] || [];
+  const schedHtml = sched.length === 0
+    ? '<p style="color:var(--gray-mid);font-size:0.85rem;padding:0.5rem 0">Sin clases programadas este día</p>'
+    : sched.map(c => `<div class="day-sched-item">
+        <span class="day-sched-time">${c.time}</span>
+        <span class="day-sched-name type-${c.type}">${c.name}</span>
+      </div>`).join('');
+
+  $('day-modal-date').textContent = dateLabel;
+  $('day-modal-att').innerHTML = attHtml;
+  $('day-modal-schedule').innerHTML = schedHtml;
+  $('day-modal').style.display = 'flex';
+}
+window.openDayModal = openDayModal;
+
+function renderWeeklyChart() {
+  const chartEl = $('att-weekly-chart');
+  if (!chartEl) return;
+  const y = _attYear, m = _attMonth;
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const weeks = [];
+  for (let start = 1; start <= daysInMonth; start += 7) {
+    let present = 0, absent = 0;
+    for (let d = start; d < start + 7 && d <= daysInMonth; d++) {
+      const key = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const st = _attRecords[key];
+      if (st === 'present') present++;
+      else if (st === 'absent') absent++;
+    }
+    weeks.push({ present, absent });
+  }
+  const maxVal = Math.max(...weeks.map(w => w.present + w.absent), 1);
+  const rows = weeks.map((w, i) => {
+    if (w.present + w.absent === 0) return '';
+    const pW = Math.round((w.present / maxVal) * 100);
+    const aW = Math.round((w.absent  / maxVal) * 100);
+    return `<div class="week-bar-row">
+      <span class="week-bar-label">S${i+1}</span>
+      <div class="week-bar-track">
+        ${w.present > 0 ? `<div class="week-bar-seg week-bar-p" style="width:${pW}%" title="${w.present} presente"></div>` : ''}
+        ${w.absent  > 0 ? `<div class="week-bar-seg week-bar-a" style="width:${aW}%" title="${w.absent} ausente"></div>` : ''}
+      </div>
+      <span class="week-bar-count">${w.present}P&nbsp;/&nbsp;${w.absent}A</span>
+    </div>`;
+  }).filter(Boolean).join('');
+  chartEl.innerHTML = rows || '<p style="color:var(--gray-mid);font-size:0.8rem;text-align:center">Sin datos este mes</p>';
+}
 
 function renderAttCalendar() {
   const y = _attYear, m = _attMonth;
@@ -615,11 +729,13 @@ function renderAttCalendar() {
   for (let d = 1; d <= daysInMonth; d++) {
     const key = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const st  = _attRecords[key];
-    const cls = `att-cal-cell ${st === 'present' ? 'att-present' : st === 'absent' ? 'att-absent' : 'att-none'}${key === todayKey ? ' att-today' : ''}`;
-    html += `<div class="${cls}" title="${key}">${d}</div>`;
+    const dow = new Date(y, m, d).getDay();
+    const cls = `att-cal-cell att-clickable ${st === 'present' ? 'att-present' : st === 'absent' ? 'att-absent' : 'att-none'}${key === todayKey ? ' att-today' : ''}`;
+    html += `<div class="${cls}" onclick="window.openDayModal('${key}',${dow})" title="Ver horario">${d}</div>`;
   }
   $('att-cal-grid').innerHTML = html;
   $('att-cal-next').disabled = (y === now.getFullYear() && m === now.getMonth());
+  renderWeeklyChart();
 }
 
 async function loadMyAttendance(userId) {
@@ -665,7 +781,9 @@ init();
 // ── MODAL CLOSE ──
 document.getElementById('stat-modal-close').addEventListener('click', () => { $('stat-modal').style.display = 'none'; });
 document.getElementById('stat-modal').addEventListener('click', e => { if (e.target === $('stat-modal')) $('stat-modal').style.display = 'none'; });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') $('stat-modal').style.display = 'none'; });
+document.getElementById('day-modal-close').addEventListener('click', () => { $('day-modal').style.display = 'none'; });
+document.getElementById('day-modal').addEventListener('click', e => { if (e.target === $('day-modal')) $('day-modal').style.display = 'none'; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('stat-modal').style.display = 'none'; $('day-modal').style.display = 'none'; } });;
 
 // ── THEME TOGGLE (sincronizado con index.html via localStorage) ──
 (function() {
