@@ -545,15 +545,105 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .student-grid { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 600px) {
   .portal-nav { padding: 0 1rem; }
   .nav-user .user-email { display: none; }
   .dashboard { padding: 1rem; }
   .data-table { font-size: 0.8rem; }
   .data-table th, .data-table td { padding: 7px 8px; }
+  .att-cal-header-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
 }
 
-/* ── PROFILE PHOTO ── */
+/* ── STUDENT GRID LAYOUT ── */
+.student-grid {
+  display: grid;
+  grid-template-columns: 40% 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+.student-left  { min-width: 0; }
+.student-right { min-width: 0; }
+
+/* ── STUDENT AVATAR ── */
+.std-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+.std-avatar-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--red);
+}
+.std-avatar-initials {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 3px solid var(--red-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.8rem;
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+.std-avatar-change-btn {
+  background: transparent;
+  border: 1px solid var(--gray-mid);
+  border-radius: 3px;
+  color: var(--gray-light);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.std-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 2px;
+  color: var(--white-pure);
+  text-align: center;
+  line-height: 1.1;
+  margin-bottom: 0.25rem;
+}
+.std-meta {
+  font-size: 0.85rem;
+  color: var(--gray-light);
+  text-align: center;
+  line-height: 1.5;
+}
+.std-since {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray-mid);
+  margin-top: 0.1rem;
+}
+
+/* ── ATT CALENDAR HEADER ROW ── */
+.att-cal-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* ── PROFILE PHOTO (legacy, keep for admin table) ── */
 .profile-avatar-wrap { flex-shrink: 0; }
 .profile-photo {
   width: 72px;

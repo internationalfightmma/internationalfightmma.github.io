@@ -142,70 +142,66 @@
       <p>Tu información y estado de membresía</p>
     </div>
 
-    <!-- Profile -->
-    <div class="section-card">
-      <div class="section-card-header">
-        <h3>Datos personales</h3>
-      </div>
-      <div class="section-card-body">
-        <div id="profile-loading" class="loading">Cargando</div>
-        <div id="profile-content" class="profile-card" style="display:none">
-          <div class="profile-avatar-wrap">
-            <img id="profile-photo" class="profile-photo" src="" alt="Foto de perfil" style="display:none">
-            <div class="profile-avatar" id="profile-avatar">?</div>
-          </div>
-          <div class="profile-info">
-            <h3 id="profile-name">—</h3>
-            <div class="info-row">Email: <span id="profile-email">—</span></div>
-            <div class="info-row">Disciplina: <span id="profile-discipline">—</span></div>
-            <div class="info-row">Miembro desde: <span id="profile-since">—</span></div>
-            <div id="contract-btn-wrap" style="margin-top:0.75rem"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="student-grid">
 
-    <!-- Payment status -->
-    <div class="section-card">
-      <div class="section-card-header">
-        <h3>Estado de pago</h3>
-      </div>
-      <div class="section-card-body">
-        <div id="payment-loading" class="loading">Cargando</div>
-        <div id="payment-content" style="display:none">
-          <div id="payment-status-card"></div>
-        </div>
-        <p id="payment-empty" style="display:none; color:var(--gray-light); font-size:0.9rem">
-          Sin historial de pagos.
-        </p>
-      </div>
-    </div>
+      <!-- LEFT: avatar + info + payment + contract -->
+      <div class="student-left section-card">
+        <div class="section-card-body">
 
-    <!-- Attendance history -->
-    <div class="section-card">
-      <div class="section-card-header">
-        <h3>Historial de asistencia</h3>
-      </div>
-      <div class="section-card-body">
-        <div id="my-attendance-loading" class="loading">Cargando</div>
-        <div id="my-attendance-wrap" style="display:none">
-          <div class="att-cal-nav">
-            <button id="att-cal-prev" class="att-cal-btn">&#8592;</button>
-            <span id="att-cal-month-label" class="att-cal-month"></span>
-            <button id="att-cal-next" class="att-cal-btn">&#8594;</button>
+          <div id="profile-loading" class="loading">Cargando</div>
+          <div id="profile-content" style="display:none">
+            <div class="std-avatar-wrap">
+              <img id="profile-photo" class="std-avatar-img" src="" alt="Foto de perfil" style="display:none">
+              <div class="std-avatar-initials" id="profile-avatar">?</div>
+              <button class="std-avatar-change-btn" disabled>Cambiar foto</button>
+            </div>
+            <h2 class="std-name" id="profile-name">—</h2>
+            <p class="std-meta" id="profile-email">—</p>
+            <p class="std-meta" id="profile-discipline"></p>
+            <p class="std-meta std-since" id="profile-since"></p>
           </div>
-          <div class="att-cal-stats"><span id="att-cal-pct" class="att-cal-pct"></span></div>
-          <div class="att-cal-grid" id="att-cal-grid"></div>
-          <div class="att-cal-legend">
-            <span class="att-leg att-leg-present">Presente</span>
-            <span class="att-leg att-leg-absent">Ausente</span>
-            <span class="att-leg att-leg-none">Sin registro</span>
+
+          <div id="payment-loading" class="loading" style="margin-top:1.5rem">Cargando</div>
+          <div id="payment-content" style="display:none;margin-top:1.25rem">
+            <div id="payment-status-card"></div>
+          </div>
+          <p id="payment-empty" style="display:none;color:var(--gray-light);font-size:0.9rem;margin-top:1rem">
+            Sin historial de pagos.
+          </p>
+
+          <div id="contract-btn-wrap" style="margin-top:1rem"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: attendance calendar -->
+      <div class="student-right section-card">
+        <div class="section-card-header">
+          <div class="att-cal-header-row">
+            <h3>Asistencia</h3>
+            <div class="att-cal-nav">
+              <button id="att-cal-prev" class="att-cal-btn">&#8592;</button>
+              <span id="att-cal-month-label" class="att-cal-month"></span>
+              <button id="att-cal-next" class="att-cal-btn">&#8594;</button>
+            </div>
           </div>
         </div>
-        <p id="my-attendance-empty" style="display:none; color:var(--gray-light); font-size:0.9rem">
-          Sin registros de asistencia.
-        </p>
+        <div class="section-card-body">
+          <div id="my-attendance-loading" class="loading">Cargando</div>
+          <div id="my-attendance-wrap" style="display:none">
+            <div class="att-cal-stats"><span id="att-cal-pct" class="att-cal-pct"></span></div>
+            <div class="att-cal-grid" id="att-cal-grid"></div>
+            <div class="att-cal-legend">
+              <span class="att-leg att-leg-present">Presente</span>
+              <span class="att-leg att-leg-absent">Ausente</span>
+              <span class="att-leg att-leg-none">Sin registro</span>
+            </div>
+          </div>
+          <p id="my-attendance-empty" style="display:none;color:var(--gray-light);font-size:0.9rem">
+            Sin registros de asistencia.
+          </p>
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -524,9 +520,9 @@ async function loadMyProfile(userId) {
   show('profile-content');
 
   $('profile-name').textContent = data.full_name || '—';
-  $('profile-email').textContent = data.email || '—';
-  $('profile-discipline').textContent = data.discipline || '—';
-  $('profile-since').textContent = fmtDate(data.created_at);
+  $('profile-email').textContent = data.email || '';
+  $('profile-discipline').textContent = data.discipline ? `🥋 ${data.discipline}` : '';
+  $('profile-since').textContent = data.created_at ? `Miembro desde ${fmtDate(data.created_at)}` : '';
 
   if (data.avatar_url) {
     $('profile-photo').src = data.avatar_url;
