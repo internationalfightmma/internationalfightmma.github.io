@@ -140,6 +140,16 @@
 
     .nav-cta:hover { background: var(--red-dark) !important; color: var(--white-pure) !important; }
 
+    .nav-ingresar {
+      background: transparent;
+      color: var(--white) !important;
+      border: 1px solid var(--gray-mid);
+      padding: 8px 20px;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+      transition: border-color 0.2s, color 0.2s !important;
+    }
+    .nav-ingresar:hover { border-color: var(--red) !important; color: var(--red) !important; }
+
     .nav-toggle {
       display: none;
       flex-direction: column;
@@ -1469,6 +1479,7 @@
       <li><a href="#planes">Planes</a></li>
       <li><a href="#personalizados">Personalizados</a></li>
       <li><a href="#ubicacion">Ubicación</a></li>
+      <li><a href="portal.html" class="nav-ingresar">Ingresar</a></li>
       <li><a href="https://wa.me/573195923634" target="_blank" class="nav-cta">Únete</a></li>
     </ul>
   </nav>
@@ -2930,14 +2941,14 @@ function toggleMute(btn) {
   </script>
 <script>
 const toggle = document.getElementById('theme-toggle');
-const saved = localStorage.getItem('theme');
+const saved = localStorage.getItem('ifmma-theme');
 if(saved) document.documentElement.setAttribute('data-theme', saved);
 if(saved === 'light') toggle.textContent = '☀️';
 toggle.addEventListener('click', () => {
   const current = document.documentElement.getAttribute('data-theme');
   const next = current === 'light' ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
+  localStorage.setItem('ifmma-theme', next);
   toggle.textContent = next === 'light' ? '☀️' : '🌙';
   window.dispatchEvent(new Event('scroll'));
 });

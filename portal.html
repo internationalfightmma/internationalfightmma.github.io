@@ -15,6 +15,7 @@
      LOGIN SCREEN
 ══════════════════════════════════════════ -->
 <div id="login-screen">
+  <button id="login-theme-toggle" class="theme-btn" aria-label="Cambiar tema" style="position:fixed;top:16px;right:16px;background:none;border:1px solid var(--gray);border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;z-index:10;">🌙</button>
   <div class="login-card">
     <div class="brand">
       <h1>IFM <span>Portal de Usuario</span></h1>
@@ -45,7 +46,7 @@
   <nav class="portal-nav">
     <a href="index.html" class="logo">IF<span>M</span></a>
     <div class="nav-user">
-      <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema" style="background:none;border:1px solid var(--gray);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;flex-shrink:0">🌙</button>
+      <button class="theme-toggle theme-btn" id="themeToggle" aria-label="Cambiar tema" style="background:none;border:1px solid var(--gray);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;flex-shrink:0">🌙</button>
       <span class="role-badge" id="nav-role-badge">—</span>
       <span class="user-email" id="nav-user-email"></span>
       <button class="btn-logout" id="logout-btn">Salir</button>
@@ -513,23 +514,28 @@ init();
 
 // ── THEME TOGGLE (sincronizado con index.html via localStorage) ──
 (function() {
-  var btn = document.getElementById('themeToggle');
   var saved = localStorage.getItem('ifmma-theme');
   if (saved === 'light') {
     document.documentElement.setAttribute('data-theme', 'light');
-    btn.textContent = '☀️';
   }
-  btn.addEventListener('click', function() {
+
+  function applyTheme(btn) {
     var current = document.documentElement.getAttribute('data-theme');
     if (current === 'light') {
       document.documentElement.removeAttribute('data-theme');
-      btn.textContent = '🌙';
       localStorage.setItem('ifmma-theme', 'dark');
+      document.querySelectorAll('.theme-btn').forEach(function(b) { b.textContent = '🌙'; });
     } else {
       document.documentElement.setAttribute('data-theme', 'light');
-      btn.textContent = '☀️';
       localStorage.setItem('ifmma-theme', 'light');
+      document.querySelectorAll('.theme-btn').forEach(function(b) { b.textContent = '☀️'; });
     }
+  }
+
+  var emoji = saved === 'light' ? '☀️' : '🌙';
+  document.querySelectorAll('.theme-btn').forEach(function(b) {
+    b.textContent = emoji;
+    b.addEventListener('click', applyTheme);
   });
 })();
 </script>
