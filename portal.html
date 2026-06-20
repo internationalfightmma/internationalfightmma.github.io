@@ -150,12 +150,16 @@
       <div class="section-card-body">
         <div id="profile-loading" class="loading">Cargando</div>
         <div id="profile-content" class="profile-card" style="display:none">
-          <div class="profile-avatar" id="profile-avatar">?</div>
+          <div class="profile-avatar-wrap">
+            <img id="profile-photo" class="profile-photo" src="" alt="Foto de perfil" style="display:none">
+            <div class="profile-avatar" id="profile-avatar">?</div>
+          </div>
           <div class="profile-info">
             <h3 id="profile-name">—</h3>
             <div class="info-row">Email: <span id="profile-email">—</span></div>
             <div class="info-row">Disciplina: <span id="profile-discipline">—</span></div>
             <div class="info-row">Miembro desde: <span id="profile-since">—</span></div>
+            <div id="contract-btn-wrap" style="margin-top:0.75rem"></div>
           </div>
         </div>
       </div>
@@ -169,17 +173,7 @@
       <div class="section-card-body">
         <div id="payment-loading" class="loading">Cargando</div>
         <div id="payment-content" style="display:none">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Período</th>
-                <th>Estado</th>
-                <th>Vencimiento</th>
-                <th>Monto</th>
-              </tr>
-            </thead>
-            <tbody id="payment-tbody"></tbody>
-          </table>
+          <div id="payment-status-card"></div>
         </div>
         <p id="payment-empty" style="display:none; color:var(--gray-light); font-size:0.9rem">
           Sin historial de pagos.
@@ -194,16 +188,19 @@
       </div>
       <div class="section-card-body">
         <div id="my-attendance-loading" class="loading">Cargando</div>
-        <div id="my-attendance-wrap" style="display:none; overflow-x:auto">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody id="my-attendance-tbody"></tbody>
-          </table>
+        <div id="my-attendance-wrap" style="display:none">
+          <div class="att-cal-nav">
+            <button id="att-cal-prev" class="att-cal-btn">&#8592;</button>
+            <span id="att-cal-month-label" class="att-cal-month"></span>
+            <button id="att-cal-next" class="att-cal-btn">&#8594;</button>
+          </div>
+          <div class="att-cal-stats"><span id="att-cal-pct" class="att-cal-pct"></span></div>
+          <div class="att-cal-grid" id="att-cal-grid"></div>
+          <div class="att-cal-legend">
+            <span class="att-leg att-leg-present">Presente</span>
+            <span class="att-leg att-leg-absent">Ausente</span>
+            <span class="att-leg att-leg-none">Sin registro</span>
+          </div>
         </div>
         <p id="my-attendance-empty" style="display:none; color:var(--gray-light); font-size:0.9rem">
           Sin registros de asistencia.
@@ -518,22 +515,34 @@ async function loadStudentDashboard(userId) {
 async function loadMyProfile(userId) {
   const { data } = await supabase
     .from('profiles')
-    .select('full_name, email, discipline, created_at')
+    .select('full_name, email, discipline, created_at, avatar_url, contract_url')
     .eq('id', userId)
     .single();
 
   hide('profile-loading');
-
   if (!data) return;
-
   show('profile-content');
+
   $('profile-name').textContent = data.full_name || '—';
   $('profile-email').textContent = data.email || '—';
   $('profile-discipline').textContent = data.discipline || '—';
   $('profile-since').textContent = fmtDate(data.created_at);
 
-  const initials = (data.full_name || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-  $('profile-avatar').textContent = initials;
+  if (data.avatar_url) {
+    $('profile-photo').src = data.avatar_url;
+    $('profile-photo').style.display = 'block';
+    $('profile-avatar').style.display = 'none';
+  } else {
+    const initials = (data.full_name || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    $('profile-avatar').textContent = initials;
+  }
+
+  const contractWrap = $('contract-btn-wrap');
+  if (data.contract_url) {
+    contractWrap.innerHTML = `<a href="${data.contract_url}" target="_blank" class="btn-contract">&#128196; Ver mi contrato</a>`;
+  } else {
+    contractWrap.innerHTML = `<button class="btn-contract btn-contract-disabled" disabled>&#128196; Contrato pendiente</button>`;
+  }
 }
 
 async function loadMyPayments(userId) {
@@ -542,7 +551,7 @@ async function loadMyPayments(userId) {
     .select('period, status, due_date, amount')
     .eq('student_id', userId)
     .order('due_date', { ascending: false })
-    .limit(12);
+    .limit(1);
 
   hide('payment-loading');
 
@@ -552,23 +561,76 @@ async function loadMyPayments(userId) {
   }
 
   show('payment-content');
-  $('payment-tbody').innerHTML = payments.map(p => `
-    <tr>
-      <td>${p.period || '—'}</td>
-      <td>${payBadge(p.status)}</td>
-      <td>${fmtDate(p.due_date)}</td>
-      <td>${p.amount ? '$' + Number(p.amount).toLocaleString('es-AR') : '—'}</td>
-    </tr>
-  `).join('');
+  const p = payments[0];
+  const days = daysUntil(p.due_date);
+
+  const cfgMap = {
+    paid:    { label: 'PAGADO',    color: '#4ade80', bg: 'rgba(0,180,80,0.1)',  border: 'rgba(0,180,80,0.3)' },
+    pending: { label: 'PENDIENTE', color: '#fbbf24', bg: 'rgba(255,170,0,0.1)', border: 'rgba(255,170,0,0.3)' },
+    overdue: { label: 'VENCIDO',   color: '#f87171', bg: 'rgba(208,2,27,0.1)',  border: 'rgba(208,2,27,0.3)' },
+  };
+  const cfg = cfgMap[p.status] || { label: (p.status||'—').toUpperCase(), color: 'var(--gray-light)', bg: 'transparent', border: 'var(--gray)' };
+
+  let daysText = '';
+  if (days !== null) {
+    if (days < 0)     daysText = `Venció hace <strong>${Math.abs(days)} días</strong>`;
+    else if (days===0) daysText = `<strong>Vence hoy</strong>`;
+    else               daysText = `Vence en <strong>${days} días</strong>`;
+  }
+
+  $('payment-status-card').innerHTML = `
+    <div class="pay-status-main" style="border-color:${cfg.border};background:${cfg.bg}">
+      <div class="pay-status-label" style="color:${cfg.color}">${cfg.label}</div>
+      ${p.period ? `<div class="pay-status-period">${p.period}</div>` : ''}
+      ${p.amount ? `<div class="pay-status-amount">$${Number(p.amount).toLocaleString('es-AR')} COP</div>` : ''}
+    </div>
+    <div class="pay-status-meta">
+      ${p.due_date ? `<div class="pay-meta-row"><span class="pay-meta-key">Vencimiento</span><span class="pay-meta-val">${fmtDate(p.due_date)}</span></div>` : ''}
+      ${daysText    ? `<div class="pay-meta-days" style="color:${cfg.color}">${daysText}</div>` : ''}
+    </div>
+  `;
+}
+
+let _attRecords = {}, _attYear = 0, _attMonth = 0, _attListenersAdded = false;
+const MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAY_LABELS  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+function renderAttCalendar() {
+  const y = _attYear, m = _attMonth;
+  $('att-cal-month-label').textContent = `${MONTH_NAMES[m]} ${y}`;
+
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const firstDay    = new Date(y, m, 1).getDay();
+
+  let present = 0, marked = 0;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if (_attRecords[key]) { marked++; if (_attRecords[key] === 'present') present++; }
+  }
+  $('att-cal-pct').textContent = marked > 0
+    ? `${Math.round((present/marked)*100)}% asistencia — ${present} presente / ${marked - present} ausente`
+    : 'Sin datos este mes';
+
+  const now = new Date();
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+  let html = DAY_LABELS.map(d => `<div class="att-cal-day-label">${d}</div>`).join('');
+  for (let i = 0; i < firstDay; i++) html += '<div class="att-cal-cell att-cal-empty"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const st  = _attRecords[key];
+    const cls = `att-cal-cell ${st === 'present' ? 'att-present' : st === 'absent' ? 'att-absent' : 'att-none'}${key === todayKey ? ' att-today' : ''}`;
+    html += `<div class="${cls}" title="${key}">${d}</div>`;
+  }
+  $('att-cal-grid').innerHTML = html;
+  $('att-cal-next').disabled = (y === now.getFullYear() && m === now.getMonth());
 }
 
 async function loadMyAttendance(userId) {
   const { data: records } = await supabase
     .from('attendance')
     .select('date, status')
-    .eq('student_id', userId)
-    .order('date', { ascending: false })
-    .limit(30);
+    .eq('student_id', userId);
 
   hide('my-attendance-loading');
 
@@ -577,13 +639,29 @@ async function loadMyAttendance(userId) {
     return;
   }
 
+  _attRecords = {};
+  records.forEach(r => { _attRecords[r.date] = r.status; });
+
+  const now = new Date();
+  _attYear = now.getFullYear();
+  _attMonth = now.getMonth();
+
   show('my-attendance-wrap');
-  $('my-attendance-tbody').innerHTML = records.map(r => `
-    <tr>
-      <td>${fmtDate(r.date)}</td>
-      <td>${attBadge(r.status)}</td>
-    </tr>
-  `).join('');
+  renderAttCalendar();
+
+  if (!_attListenersAdded) {
+    _attListenersAdded = true;
+    $('att-cal-prev').addEventListener('click', () => {
+      if (_attMonth === 0) { _attYear--; _attMonth = 11; } else _attMonth--;
+      renderAttCalendar();
+    });
+    $('att-cal-next').addEventListener('click', () => {
+      const n = new Date();
+      if (_attYear === n.getFullYear() && _attMonth === n.getMonth()) return;
+      if (_attMonth === 11) { _attYear++; _attMonth = 0; } else _attMonth++;
+      renderAttCalendar();
+    });
+  }
 }
 
 init();

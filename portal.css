@@ -552,3 +552,181 @@ body {
   .data-table { font-size: 0.8rem; }
   .data-table th, .data-table td { padding: 7px 8px; }
 }
+
+/* ── PROFILE PHOTO ── */
+.profile-avatar-wrap { flex-shrink: 0; }
+.profile-photo {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--red);
+}
+.btn-contract {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid var(--gray-mid);
+  border-radius: 4px;
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-contract:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
+.btn-contract-disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── PAYMENT STATUS CARD ── */
+.pay-status-main {
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.pay-status-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.8rem;
+  letter-spacing: 4px;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+.pay-status-period {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gray-light);
+}
+.pay-status-amount {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  color: var(--white-pure);
+  margin-top: 0.5rem;
+}
+.pay-status-meta { display: flex; flex-direction: column; gap: 0.25rem; }
+.pay-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--gray);
+  font-size: 0.9rem;
+}
+.pay-meta-key {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gray-light);
+}
+.pay-meta-val { color: var(--white); }
+.pay-meta-days {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  text-align: center;
+  padding-top: 0.6rem;
+}
+
+/* ── ATTENDANCE CALENDAR ── */
+.att-cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+.att-cal-btn {
+  background: var(--black-light);
+  border: 1px solid var(--gray);
+  color: var(--white);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
+}
+.att-cal-btn:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
+.att-cal-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.att-cal-month {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--white-pure);
+}
+.att-cal-stats {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
+  color: var(--gray-light);
+  margin-bottom: 0.75rem;
+}
+.att-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 0.75rem;
+}
+.att-cal-day-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-align: center;
+  color: var(--gray-mid);
+  text-transform: uppercase;
+  padding: 2px 0;
+}
+.att-cal-cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.att-cal-empty { background: transparent; }
+.att-present { background: rgba(0,180,80,0.2); color: #4ade80; border: 1px solid rgba(0,180,80,0.35); }
+.att-absent  { background: rgba(208,2,27,0.15); color: #f87171; border: 1px solid rgba(208,2,27,0.3); }
+.att-none    { background: var(--black-light); color: var(--gray-mid); border: 1px solid var(--gray); }
+.att-today   { outline: 2px solid var(--red); outline-offset: 1px; }
+.att-cal-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.att-leg {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  color: var(--gray-light);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.att-leg::before {
+  content: '';
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+}
+.att-leg-present::before { background: rgba(0,180,80,0.2); border: 1px solid rgba(0,180,80,0.35); }
+.att-leg-absent::before  { background: rgba(208,2,27,0.15); border: 1px solid rgba(208,2,27,0.3); }
+.att-leg-none::before    { background: var(--black-light); border: 1px solid var(--gray); }
