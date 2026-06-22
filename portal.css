@@ -858,46 +858,73 @@ body {
 .type-open      { color: var(--white); }
 .type-sparring  { color: #FF8A65; }
 
-/* ── WEEKLY BAR CHART ── */
-.att-weekly-section {
+/* ── ATTENDANCE CHART TABS ── */
+.att-chart-section {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--gray);
 }
-.att-weekly-title {
+.att-chart-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0.75rem;
+}
+.att-chart-tab {
+  background: transparent;
+  border: 1px solid var(--gray-mid);
+  color: var(--gray-light);
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--gray-light);
-  margin-bottom: 0.6rem;
+  padding: 4px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
-.att-weekly-chart { display: flex; flex-direction: column; gap: 5px; }
-.week-bar-row { display: flex; align-items: center; gap: 0.5rem; }
-.week-bar-label {
+.att-chart-tab:hover { border-color: var(--red); color: var(--white); }
+.att-chart-tab.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: #FFFFFF;
+}
+.att-chart-body { display: flex; flex-direction: column; gap: 5px; }
+
+/* ── ATTENDANCE BAR ROWS ── */
+.att-bar-row { display: flex; align-items: center; gap: 0.5rem; }
+.att-bar-row.att-row-today .att-bar-label { color: var(--white-pure); font-weight: 700; }
+.att-bar-label {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-size: 0.72rem;
+  letter-spacing: 0.5px;
   color: var(--gray-light);
-  min-width: 22px;
+  min-width: 52px;
+  white-space: nowrap;
 }
-.week-bar-track {
+.att-bar-track {
   flex: 1;
-  height: 13px;
+  height: 14px;
   background: var(--black-light);
   border-radius: 3px;
   overflow: hidden;
-  display: flex;
+  position: relative;
 }
-.week-bar-seg { height: 100%; }
-.week-bar-p { background: rgba(0,180,80,0.55); }
-.week-bar-a { background: rgba(208,2,27,0.5); }
-.week-bar-count {
+.att-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.att-bar-present { background: rgba(0,180,80,0.6); }
+.att-bar-absent  { background: rgba(208,2,27,0.55); }
+.att-bar-none    { background: transparent; }
+.att-bar-pct {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.68rem;
-  color: var(--gray-light);
-  min-width: 54px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 52px;
   text-align: right;
 }
+.att-stat-p { color: #4ade80; }
+.att-stat-a { color: #f87171; }
+.att-stat-n { color: var(--gray-mid); }
