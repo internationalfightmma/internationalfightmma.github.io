@@ -216,9 +216,24 @@
       <div id="section-pagos" class="admin-section">
         <h2 class="admin-section-header">Pagos</h2>
         <div class="section-card">
-          <div class="section-card-body" style="text-align:center;padding:3rem">
-            <p style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--gray-mid)">PRÓXIMAMENTE</p>
-            <p style="font-size:0.85rem;color:var(--gray-mid);margin-top:0.5rem">Historial completo de pagos, reportes y estadísticas</p>
+          <div class="section-card-body">
+            <div id="pagos-loading" class="loading">Cargando</div>
+            <div id="pagos-table-wrap" style="display:none;overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Estudiante</th>
+                    <th>Monto</th>
+                    <th>Método</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Período</th>
+                  </tr>
+                </thead>
+                <tbody id="pagos-tbody"></tbody>
+              </table>
+            </div>
+            <p id="pagos-empty" style="display:none;color:var(--gray-light);font-size:0.9rem">Sin registros de pagos.</p>
           </div>
         </div>
       </div>
@@ -745,6 +760,8 @@ window._cortesiaData = [];
 let _editCortesiaId  = null;
 let _convertCortesiaId = null;
 
+let _pagosLoaded = false;
+
 function switchAdminSection(section) {
   document.querySelectorAll('.admin-nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.section === section);
@@ -752,8 +769,38 @@ function switchAdminSection(section) {
   document.querySelectorAll('.admin-section').forEach(el => {
     el.classList.toggle('active', el.id === `section-${section}`);
   });
+  if (section === 'pagos' && !_pagosLoaded) loadPagos();
 }
 window.switchAdminSection = switchAdminSection;
+
+async function loadPagos() {
+  const { data, error } = await supabase
+    .from('payments')
+    .select('id, amount, method, status, due_date, period, student_id, profiles(full_name)')
+    .order('due_date', { ascending: false })
+    .limit(200);
+
+  hide('pagos-loading');
+
+  if (error || !data || data.length === 0) {
+    show('pagos-empty');
+    return;
+  }
+
+  _pagosLoaded = true;
+  show('pagos-table-wrap');
+
+  const methodLabel = { nequi: 'Nequi', efectivo: 'Efectivo' };
+
+  $('pagos-tbody').innerHTML = data.map(p => `<tr>
+    <td>${p.profiles?.full_name || '—'}</td>
+    <td>${p.amount ? '$' + Number(p.amount).toLocaleString('es-AR') + ' COP' : '—'}</td>
+    <td>${methodLabel[p.method] || (p.method || '—')}</td>
+    <td>${payBadge(p.status)}</td>
+    <td>${fmtDate(p.due_date)}</td>
+    <td>${p.period || '—'}</td>
+  </tr>`).join('');
+}
 
 function switchCortTab(tab) {
   document.querySelectorAll('.cort-tab').forEach(el => {
