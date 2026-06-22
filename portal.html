@@ -102,6 +102,8 @@
                 <th title="Matrícula pagada">📋</th>
                 <th></th>
                 <th></th>
+                <th title="Editar">✏️</th>
+                <th title="Ver perfil">👁️</th>
               </tr>
             </thead>
             <tbody id="students-tbody"></tbody>
@@ -223,26 +225,69 @@
     </div>
   </div>
 
+  <!-- PROFILE MODAL -->
+  <div id="profile-modal" class="stat-modal-overlay">
+    <div class="stat-modal-box profile-modal-box">
+      <div class="stat-modal-header">
+        <div class="pm-header-left">
+          <div class="pm-avatar-lg" id="pm-avatar">?</div>
+          <div>
+            <div id="pm-name" style="font-family:'Barlow Condensed',sans-serif;font-size:1.15rem;font-weight:700;letter-spacing:1px;color:var(--white-pure)">—</div>
+            <div id="pm-badges" style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px"></div>
+          </div>
+        </div>
+        <button class="stat-modal-close" id="profile-modal-close">✕</button>
+      </div>
+      <div class="stat-modal-body">
+        <div class="pm-grid">
+          <div class="pm-col">
+            <div class="pm-section-title">Datos personales</div>
+            <div class="pm-info-grid" id="pm-info"></div>
+            <div class="pm-section-title" style="margin-top:1.25rem">Contrato</div>
+            <div id="pm-contract"></div>
+            <div class="pm-section-title" style="margin-top:1.25rem">Notas</div>
+            <div id="pm-notes" class="pm-notes-text"></div>
+          </div>
+          <div class="pm-col">
+            <div class="pm-section-title">Historial de pagos</div>
+            <div id="pm-payments"><div class="loading" style="padding:1rem 0">Cargando</div></div>
+            <div class="pm-section-title" style="margin-top:1.25rem">Asistencia — <span id="pm-att-month"></span></div>
+            <div class="att-cal-stats" style="margin-bottom:0.5rem"><span id="pm-att-stats" style="font-size:0.8rem;color:var(--gray-light)"></span></div>
+            <div class="att-cal-grid" id="pm-att-cal"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- NEW STUDENT MODAL -->
   <div id="new-student-modal" class="stat-modal-overlay">
-    <div class="stat-modal-box" style="max-width:460px">
+    <div class="stat-modal-box" style="max-width:560px">
       <div class="stat-modal-header">
-        <h3>Nuevo Estudiante</h3>
+        <h3 id="ns-modal-title">Nuevo Estudiante</h3>
         <button class="stat-modal-close" id="new-student-close">✕</button>
       </div>
       <div class="stat-modal-body">
         <form id="new-student-form" class="admin-form">
-          <div class="admin-form-group">
-            <label>Nombre completo</label>
-            <input type="text" id="ns-name" required placeholder="Juan García">
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label>Nombre completo</label>
+              <input type="text" id="ns-name" required placeholder="Juan García">
+            </div>
+            <div class="admin-form-group">
+              <label>Email</label>
+              <input type="email" id="ns-email" required placeholder="juan@email.com">
+            </div>
           </div>
-          <div class="admin-form-group">
-            <label>Email</label>
-            <input type="email" id="ns-email" required placeholder="juan@email.com">
-          </div>
-          <div class="admin-form-group">
-            <label>Teléfono</label>
-            <input type="tel" id="ns-phone" placeholder="3001234567">
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label>Teléfono</label>
+              <input type="tel" id="ns-phone" placeholder="3001234567">
+            </div>
+            <div class="admin-form-group">
+              <label>Fecha de nacimiento</label>
+              <input type="date" id="ns-birthdate">
+            </div>
           </div>
           <div class="admin-form-row">
             <div class="admin-form-group">
@@ -261,6 +306,10 @@
             <label class="admin-check-label">
               <input type="checkbox" id="ns-uniforme"> Uniforme entregado
             </label>
+          </div>
+          <div class="admin-form-group">
+            <label>Notas adicionales</label>
+            <textarea id="ns-notes" class="admin-textarea" placeholder="Observaciones, horario preferido..." rows="2"></textarea>
           </div>
           <div class="error-msg" id="ns-error"></div>
           <div class="admin-form-actions">
@@ -546,7 +595,7 @@ async function loadAdminDashboard() {
 async function loadStudents() {
   const { data: students, error } = await supabase
     .from('profiles')
-    .select('id, full_name, email, discipline, payment_status, payment_due_date, phone, avatar_url, matricula_pagada, uniforme_entregado')
+    .select('id, full_name, email, discipline, payment_status, payment_due_date, phone, avatar_url, matricula_pagada, uniforme_entregado, birthdate, notes, contract_url, created_at')
     .eq('role', 'student')
     .order('full_name');
 
@@ -574,6 +623,8 @@ async function loadStudents() {
       <td>${chkIcon(!!s.matricula_pagada,  s.id, 'matricula_pagada',  '📋')}</td>
       <td>${waBtn(s, days)}</td>
       <td>${confPayBtn(s)}</td>
+      <td><button class="btn-act-icon" onclick="window.openEditStudentModal('${s.id}')" title="Editar">✏️</button></td>
+      <td><button class="btn-act-icon" onclick="window.openProfileModal('${s.id}')" title="Ver perfil">👁️</button></td>
     </tr>`;
   }).join('');
 
@@ -1047,13 +1098,20 @@ document.getElementById('new-student-modal').addEventListener('click', e => { if
 document.getElementById('ns-cancel').addEventListener('click', () => { $('new-student-modal').style.display = 'none'; });
 document.getElementById('pay-modal-close').addEventListener('click', () => { $('pay-modal').style.display = 'none'; });
 document.getElementById('pay-modal').addEventListener('click', e => { if (e.target === $('pay-modal')) $('pay-modal').style.display = 'none'; });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { [$('stat-modal'),$('day-modal'),$('new-student-modal'),$('pay-modal')].forEach(m => { if(m) m.style.display = 'none'; }); } });
+document.getElementById('profile-modal-close').addEventListener('click', () => { $('profile-modal').style.display = 'none'; });
+document.getElementById('profile-modal').addEventListener('click', e => { if (e.target === $('profile-modal')) $('profile-modal').style.display = 'none'; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { [$('stat-modal'),$('day-modal'),$('new-student-modal'),$('pay-modal'),$('profile-modal')].forEach(m => { if(m) m.style.display = 'none'; }); } });
 
-// ── NEW STUDENT ──
+// ── NEW / EDIT STUDENT ──
+let _editStudentId = null;
+
 function openNewStudentModal() {
+  _editStudentId = null;
+  $('ns-modal-title').textContent = 'Nuevo Estudiante';
   $('new-student-form').reset();
   $('ns-start').value = new Date().toISOString().split('T')[0];
   $('ns-amount').value = '150000';
+  $('ns-matricula').checked = true;  // marcado por defecto
   $('ns-error').textContent = '';
   $('ns-error').classList.remove('visible');
   $('ns-submit').disabled = false;
@@ -1062,25 +1120,68 @@ function openNewStudentModal() {
 }
 window.openNewStudentModal = openNewStudentModal;
 
+function openEditStudentModal(studentId) {
+  const s = (window._allStudents || []).find(st => st.id === studentId);
+  if (!s) return;
+  _editStudentId = studentId;
+  $('ns-modal-title').textContent = 'Editar Estudiante';
+  $('ns-name').value      = s.full_name || '';
+  $('ns-email').value     = s.email || '';
+  $('ns-phone').value     = s.phone || '';
+  $('ns-birthdate').value = s.birthdate || '';
+  $('ns-start').value     = s.created_at?.split('T')[0] || new Date().toISOString().split('T')[0];
+  $('ns-amount').value    = '150000';
+  $('ns-matricula').checked   = !!s.matricula_pagada;
+  $('ns-uniforme').checked    = !!s.uniforme_entregado;
+  $('ns-notes').value    = s.notes || '';
+  $('ns-error').textContent = '';
+  $('ns-error').classList.remove('visible');
+  $('ns-submit').disabled = false;
+  $('ns-submit').textContent = 'Guardar cambios';
+  $('new-student-modal').style.display = 'flex';
+}
+window.openEditStudentModal = openEditStudentModal;
+
 $('new-student-form').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = $('ns-submit');
   const errEl = $('ns-error');
   btn.disabled = true;
-  btn.textContent = 'Creando...';
   errEl.classList.remove('visible');
 
-  const name   = $('ns-name').value.trim();
-  const email  = $('ns-email').value.trim();
-  const phone  = $('ns-phone').value.trim();
-  const start  = $('ns-start').value;
-  const amount = parseInt($('ns-amount').value) || 150000;
+  const name      = $('ns-name').value.trim();
+  const email     = $('ns-email').value.trim();
+  const phone     = $('ns-phone').value.trim();
+  const birthdate = $('ns-birthdate').value || null;
+  const notes     = $('ns-notes').value.trim() || null;
+  const start     = $('ns-start').value;
+  const amount    = parseInt($('ns-amount').value) || 150000;
+  const matricula_pagada   = $('ns-matricula').checked;
+  const uniforme_entregado = $('ns-uniforme').checked;
 
+  // ── EDIT MODE ──
+  if (_editStudentId) {
+    btn.textContent = 'Guardando...';
+    const { error } = await supabase.from('profiles').update({
+      full_name: name, phone, birthdate, notes, matricula_pagada, uniforme_entregado,
+    }).eq('id', _editStudentId);
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.classList.add('visible');
+    } else {
+      $('new-student-modal').style.display = 'none';
+      await loadStudents();
+    }
+    btn.disabled = false; btn.textContent = 'Guardar cambios';
+    return;
+  }
+
+  // ── CREATE MODE ──
+  btn.textContent = 'Creando...';
   const due = new Date(start);
   due.setDate(due.getDate() + 30);
   const dueDateStr = due.toISOString().split('T')[0];
 
-  // Create auth user
   const { data: authData, error: authErr } = await supabase.auth.signUp({ email, password: 'IFM2025' });
   if (authErr) {
     errEl.textContent = authErr.message;
@@ -1096,15 +1197,12 @@ $('new-student-form').addEventListener('submit', async e => {
     return;
   }
 
-  // Insert profile
   const { error: profErr } = await supabase.from('profiles').upsert({
-    id: userId, full_name: name, email, phone,
+    id: userId, full_name: name, email, phone, birthdate, notes,
     role: 'student', payment_status: 'pending', payment_due_date: dueDateStr,
-    matricula_pagada: $('ns-matricula').checked,
-    uniforme_entregado: $('ns-uniforme').checked,
+    matricula_pagada, uniforme_entregado,
   });
 
-  // Insert initial payment
   const period = new Date(start).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
   await supabase.from('payments').insert({
     student_id: userId, period, status: 'pending', due_date: dueDateStr, amount,
@@ -1119,6 +1217,98 @@ $('new-student-form').addEventListener('submit', async e => {
   }
   btn.disabled = false; btn.textContent = 'Crear estudiante';
 });
+
+// ── PROFILE MODAL ──
+async function openProfileModal(studentId) {
+  const s = (window._allStudents || []).find(st => st.id === studentId);
+  if (!s) return;
+
+  // Avatar
+  const avEl = $('pm-avatar');
+  if (s.avatar_url) {
+    avEl.innerHTML = `<img src="${s.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    avEl.style.background = 'none';
+  } else {
+    const ini = (s.full_name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    avEl.textContent = ini;
+    avEl.style.background = '';
+  }
+  $('pm-name').textContent = s.full_name || '—';
+
+  // Badges
+  const payCls = s.payment_status==='paid' ? 'pm-badge-paid' : s.payment_status==='overdue' ? 'pm-badge-overdue' : 'pm-badge-pending';
+  const payLbl = s.payment_status==='paid' ? 'Al día' : s.payment_status==='overdue' ? 'Vencido' : 'Pendiente';
+  $('pm-badges').innerHTML = [
+    `<span class="pm-badge ${payCls}">${payLbl}</span>`,
+    `<span class="pm-badge ${s.matricula_pagada ? 'pm-badge-ok' : 'pm-badge-no'}">📋 Matrícula ${s.matricula_pagada?'✓':'✗'}</span>`,
+    `<span class="pm-badge ${s.uniforme_entregado ? 'pm-badge-ok' : 'pm-badge-no'}">🎽 Uniforme ${s.uniforme_entregado?'✓':'✗'}</span>`,
+  ].join('');
+
+  // Info rows
+  $('pm-info').innerHTML = [
+    ['Email', s.email||'—'], ['Teléfono', s.phone||'—'],
+    ['Disciplina', s.discipline||'—'], ['Nacimiento', s.birthdate ? fmtDate(s.birthdate) : '—'],
+    ['Miembro desde', s.created_at ? fmtDate(s.created_at) : '—'],
+    ['Vence', s.payment_due_date ? fmtDate(s.payment_due_date) : '—'],
+  ].map(([k,v]) => `<div class="pm-info-key">${k}</div><div class="pm-info-val">${v}</div>`).join('');
+
+  // Notes + contract
+  $('pm-notes').textContent = s.notes || 'Sin notas.';
+  $('pm-contract').innerHTML = s.contract_url
+    ? `<a href="${s.contract_url}" target="_blank" class="btn-contract">📄 Ver contrato</a>`
+    : `<button class="btn-contract btn-contract-disabled" disabled>📄 Sin contrato subido</button>`;
+
+  // Attendance month label
+  const now = new Date();
+  $('pm-att-month').textContent = MONTH_NAMES[now.getMonth()];
+  $('pm-att-cal').innerHTML = '';
+  $('pm-att-stats').textContent = 'Cargando...';
+  $('pm-payments').innerHTML = '<div class="loading" style="padding:0.5rem 0">Cargando</div>';
+
+  $('profile-modal').style.display = 'flex';
+
+  // Load data async
+  const monthStart = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+  const [{ data: payments }, { data: att }] = await Promise.all([
+    supabase.from('payments').select('period, status, due_date, amount')
+      .eq('student_id', studentId).order('due_date', { ascending: false }).limit(5),
+    supabase.from('attendance').select('date, status')
+      .eq('student_id', studentId).gte('date', monthStart),
+  ]);
+
+  // Render payments
+  const pmts = payments || [];
+  $('pm-payments').innerHTML = pmts.length === 0
+    ? '<p style="color:var(--gray-light);font-size:0.85rem">Sin historial.</p>'
+    : `<table class="data-table" style="font-size:0.8rem"><thead><tr><th>Período</th><th>Estado</th><th>Vence</th><th>Monto</th></tr></thead><tbody>
+       ${pmts.map(p=>`<tr><td>${p.period||'—'}</td><td>${payBadge(p.status)}</td><td>${fmtDate(p.due_date)}</td><td>${p.amount?'$'+Number(p.amount).toLocaleString('es-AR'):'—'}</td></tr>`).join('')}
+       </tbody></table>`;
+
+  // Render attendance mini-calendar
+  const attMap = {};
+  (att||[]).forEach(r => { attMap[r.date] = r.status; });
+  const y=now.getFullYear(), m=now.getMonth();
+  const dim = new Date(y, m+1, 0).getDate();
+  const fd  = new Date(y, m, 1).getDay();
+  let present=0, marked=0;
+  for (let d=1;d<=dim;d++){
+    const key=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if(attMap[key]){marked++;if(attMap[key]==='present')present++;}
+  }
+  let html = DAY_LABELS.map(d=>`<div class="att-cal-day-label">${d}</div>`).join('');
+  for(let i=0;i<fd;i++) html+='<div class="att-cal-cell att-cal-empty"></div>';
+  for(let d=1;d<=dim;d++){
+    const key=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const st=attMap[key];
+    const cls=st==='present'?'att-present':st==='absent'?'att-absent':'att-none';
+    html+=`<div class="att-cal-cell ${cls}" title="${key}">${d}</div>`;
+  }
+  $('pm-att-cal').innerHTML = html;
+  $('pm-att-stats').textContent = marked > 0
+    ? `${Math.round((present/marked)*100)}% — ${present} presente / ${marked-present} ausente`
+    : 'Sin datos este mes';
+}
+window.openProfileModal = openProfileModal;
 
 // ── CONFIRM PAYMENT ──
 let _payStudentId = null, _payMethod = null;
