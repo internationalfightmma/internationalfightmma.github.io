@@ -54,134 +54,176 @@
   </nav>
 
   <!-- ADMIN DASHBOARD -->
-  <div id="admin-dashboard" class="dashboard" style="display:none">
-    <div class="dashboard-header">
-      <h2>Panel <span>Administrador</span></h2>
-      <p>Gestión de estudiantes, pagos y asistencia</p>
-    </div>
+  <div id="admin-dashboard" class="admin-layout" style="display:none">
 
-    <!-- Stats row -->
-    <div class="stats-grid" id="admin-stats">
-      <div class="stat-card stat-card-clickable" onclick="window.openStatModal('all')" title="Ver lista completa">
-        <div class="stat-label">Estudiantes activos</div>
-        <div class="stat-value" id="stat-total">—</div>
-      </div>
-      <div class="stat-card stat-card-clickable" onclick="window.openStatModal('paid')" title="Ver lista">
-        <div class="stat-label">Pagos al día</div>
-        <div class="stat-value" id="stat-paid">—</div>
-      </div>
-      <div class="stat-card stat-card-clickable" onclick="window.openStatModal('pending')" title="Ver lista">
-        <div class="stat-label">Pagos pendientes</div>
-        <div class="stat-value" id="stat-pending">—</div>
-      </div>
-      <div class="stat-card stat-card-clickable" onclick="window.openStatModal('overdue')" title="Ver lista">
-        <div class="stat-label">Vencidos</div>
-        <div class="stat-value" id="stat-overdue">—</div>
-      </div>
-      <div class="stat-card" onclick="document.getElementById('cortesias-section').scrollIntoView({behavior:'smooth'})" style="cursor:pointer" title="Ver cortesías">
-        <div class="stat-label">En cortesía</div>
-        <div class="stat-value" id="stat-cortesia">—</div>
-      </div>
-    </div>
+    <!-- LEFT SIDEBAR -->
+    <nav class="admin-sidebar">
+      <div class="admin-sidebar-logo">IFM · Admin</div>
+      <div class="admin-nav-item active" data-section="dashboard" onclick="window.switchAdminSection('dashboard')"><span class="admin-nav-icon">📊</span>Dashboard</div>
+      <div class="admin-nav-item" data-section="students" onclick="window.switchAdminSection('students')"><span class="admin-nav-icon">👥</span>Estudiantes</div>
+      <div class="admin-nav-item" data-section="cortesias" onclick="window.switchAdminSection('cortesias')"><span class="admin-nav-icon">🎟️</span>Cortesías</div>
+      <div class="admin-nav-item" data-section="asistencia" onclick="window.switchAdminSection('asistencia')"><span class="admin-nav-icon">📅</span>Asistencia</div>
+      <div class="admin-nav-item" data-section="pagos" onclick="window.switchAdminSection('pagos')"><span class="admin-nav-icon">💳</span>Pagos</div>
+      <div class="admin-nav-item coming-soon"><span class="admin-nav-icon">📱</span>QR</div>
+      <div class="admin-nav-item coming-soon"><span class="admin-nav-icon">📈</span>Reportes</div>
+    </nav>
 
-    <!-- Students table -->
-    <div class="section-card">
-      <div class="section-card-header">
-        <h3>Estudiantes</h3>
-        <button class="btn-admin-action" onclick="window.openNewStudentModal()">+ Nuevo estudiante</button>
-      </div>
-      <div class="section-card-body">
-        <div id="students-loading" class="loading">Cargando</div>
-        <div id="students-table-wrap" style="display:none; overflow-x:auto">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th style="width:40px"></th>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Disciplina</th>
-                <th>Pago</th>
-                <th>Días</th>
-                <th title="Uniforme entregado">🎽</th>
-                <th title="Matrícula pagada">📋</th>
-                <th></th>
-                <th></th>
-                <th title="Editar">✏️</th>
-                <th title="Ver perfil">👁️</th>
-              </tr>
-            </thead>
-            <tbody id="students-tbody"></tbody>
-          </table>
-        </div>
-        <p id="students-empty" style="display:none; color:var(--gray-light); font-size:0.9rem">
-          No hay estudiantes registrados aún.
-        </p>
-      </div>
-    </div>
+    <!-- RIGHT CONTENT -->
+    <div class="admin-content">
 
-    <!-- Cortesías -->
-    <div class="section-card" id="cortesias-section">
-      <div class="section-card-header">
-        <h3>Cortesías <span style="font-size:0.75rem;color:var(--gray-light);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">(3 clases gratis)</span></h3>
-        <button class="btn-admin-action" onclick="window.openCortesiaModal()">+ Nueva cortesía</button>
-      </div>
-      <div class="section-card-body">
-        <div id="cortesias-loading" class="loading">Cargando</div>
-        <div id="cortesias-table-wrap" style="display:none;overflow-x:auto">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nombre</th><th>Documento</th><th>Teléfono</th><th>Email</th>
-                <th>Clases</th><th>Estado</th><th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="cortesias-tbody"></tbody>
-          </table>
-        </div>
-        <p id="cortesias-empty" style="display:none;color:var(--gray-light);font-size:0.9rem">No hay cortesías registradas.</p>
-      </div>
-    </div>
-
-    <!-- Attendance today -->
-    <div class="section-card">
-      <div class="section-card-header">
-        <h3 id="att-section-title">Asistencia</h3>
-        <button class="btn-admin-action btn-att-export" onclick="window.exportAttCSV()">↓ CSV</button>
-      </div>
-      <div class="section-card-body">
-        <div class="att-controls">
-          <div class="att-control-group">
-            <label class="att-control-label">Fecha</label>
-            <input type="date" id="att-date-filter" class="att-date-input">
+      <!-- ── DASHBOARD ── -->
+      <div id="section-dashboard" class="admin-section active">
+        <h2 class="admin-section-header">Panel <span>Administrador</span></h2>
+        <div class="stats-grid" id="admin-stats">
+          <div class="stat-card stat-card-clickable" onclick="window.openStatModal('all')" title="Ver lista completa">
+            <div class="stat-label">Estudiantes activos</div>
+            <div class="stat-value" id="stat-total">—</div>
           </div>
-          <div class="att-control-group">
-            <label class="att-control-label">Sesión</label>
-            <select id="att-session-filter" class="att-session-select">
-              <option value="all">Todas las sesiones</option>
-              <option value="morning">Mañana (6AM–8AM)</option>
-              <option value="evening">Noche (6:30PM–9PM)</option>
-            </select>
+          <div class="stat-card stat-card-clickable" onclick="window.openStatModal('paid')" title="Ver lista">
+            <div class="stat-label">Pagos al día</div>
+            <div class="stat-value" id="stat-paid">—</div>
+          </div>
+          <div class="stat-card stat-card-clickable" onclick="window.openStatModal('pending')" title="Ver lista">
+            <div class="stat-label">Pagos pendientes</div>
+            <div class="stat-value" id="stat-pending">—</div>
+          </div>
+          <div class="stat-card stat-card-clickable" onclick="window.openStatModal('overdue')" title="Ver lista">
+            <div class="stat-label">Vencidos</div>
+            <div class="stat-value" id="stat-overdue">—</div>
+          </div>
+          <div class="stat-card stat-card-clickable" onclick="window.switchAdminSection('cortesias')" title="Ver cortesías">
+            <div class="stat-label">En cortesía</div>
+            <div class="stat-value" id="stat-cortesia">—</div>
           </div>
         </div>
-        <div id="att-summary" class="att-summary" style="display:none"></div>
-        <div id="attendance-loading" class="loading">Cargando</div>
-        <div id="attendance-table-wrap" style="display:none; overflow-x:auto">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Estudiante</th>
-                <th>Estado</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody id="attendance-tbody"></tbody>
-          </table>
-        </div>
-        <p id="attendance-empty" style="display:none; color:var(--gray-light); font-size:0.9rem">
-          No hay estudiantes registrados.
-        </p>
       </div>
-    </div>
+
+      <!-- ── ESTUDIANTES ── -->
+      <div id="section-students" class="admin-section">
+        <div class="admin-section-header-row">
+          <h2 class="admin-section-header">Estudiantes</h2>
+          <button class="btn-admin-action" onclick="window.openNewStudentModal()">+ Nuevo estudiante</button>
+        </div>
+        <div class="section-card">
+          <div class="section-card-body">
+            <div id="students-loading" class="loading">Cargando</div>
+            <div id="students-table-wrap" style="display:none;overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width:40px"></th><th>Nombre</th><th>Email</th><th>Disciplina</th>
+                    <th>Pago</th><th>Días</th>
+                    <th title="Uniforme">🎽</th><th title="Matrícula">📋</th>
+                    <th></th><th></th><th title="Editar">✏️</th><th title="Ver perfil">👁️</th>
+                  </tr>
+                </thead>
+                <tbody id="students-tbody"></tbody>
+              </table>
+            </div>
+            <p id="students-empty" style="display:none;color:var(--gray-light);font-size:0.9rem">No hay estudiantes registrados aún.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CORTESÍAS ── -->
+      <div id="section-cortesias" class="admin-section">
+        <div class="admin-section-header-row">
+          <h2 class="admin-section-header">Cortesías</h2>
+          <button class="btn-admin-action" onclick="window.openCortesiaModal()">+ Nueva cortesía</button>
+        </div>
+        <div class="cort-tabs">
+          <button class="cort-tab active" data-tab="activas" onclick="window.switchCortTab('activas')">Activas</button>
+          <button class="cort-tab" data-tab="pasadas" onclick="window.switchCortTab('pasadas')">Pasadas</button>
+        </div>
+
+        <!-- Activas -->
+        <div id="cort-section-activas" class="cort-section section-card">
+          <div class="section-card-body">
+            <div id="cortesias-loading" class="loading">Cargando</div>
+            <div id="cortesias-table-wrap" style="display:none;overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th><th>Cédula</th><th>Teléfono</th><th>Email</th>
+                    <th>Edad</th><th>Clases</th><th>Inicio</th><th>Días</th>
+                    <th>Notas</th><th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="cortesias-tbody"></tbody>
+              </table>
+            </div>
+            <p id="cortesias-empty" style="display:none;color:var(--gray-light);font-size:0.9rem">No hay cortesías activas.</p>
+          </div>
+        </div>
+
+        <!-- Pasadas -->
+        <div id="cort-section-pasadas" class="cort-section section-card" style="display:none">
+          <div class="section-card-body">
+            <div id="cortesias-past-loading" class="loading">Cargando</div>
+            <div id="cortesias-past-wrap" style="display:none;overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th><th>Cédula</th><th>Email</th><th>Teléfono</th>
+                    <th>Edad</th><th>Inicio</th><th>Fin</th>
+                    <th>Clases</th><th>Resultado</th><th>Duración</th>
+                  </tr>
+                </thead>
+                <tbody id="cortesias-past-tbody"></tbody>
+              </table>
+            </div>
+            <p id="cortesias-past-empty" style="display:none;color:var(--gray-light);font-size:0.9rem">Sin historial.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ASISTENCIA ── -->
+      <div id="section-asistencia" class="admin-section">
+        <div class="admin-section-header-row">
+          <h2 class="admin-section-header">Asistencia</h2>
+          <button class="btn-admin-action btn-att-export" onclick="window.exportAttCSV()">↓ CSV</button>
+        </div>
+        <div class="section-card">
+          <div class="section-card-body">
+            <div class="att-controls">
+              <div class="att-control-group">
+                <label class="att-control-label">Fecha</label>
+                <input type="date" id="att-date-filter" class="att-date-input">
+              </div>
+              <div class="att-control-group">
+                <label class="att-control-label">Sesión</label>
+                <select id="att-session-filter" class="att-session-select">
+                  <option value="all">Todas las sesiones</option>
+                  <option value="morning">Mañana (6AM–8AM)</option>
+                  <option value="evening">Noche (6:30PM–9PM)</option>
+                </select>
+              </div>
+            </div>
+            <div id="att-summary" class="att-summary" style="display:none"></div>
+            <div id="attendance-loading" class="loading">Cargando</div>
+            <div id="attendance-table-wrap" style="display:none;overflow-x:auto">
+              <table class="data-table">
+                <thead><tr><th>Estudiante</th><th>Estado</th><th id="att-section-title">Acción</th></tr></thead>
+                <tbody id="attendance-tbody"></tbody>
+              </table>
+            </div>
+            <p id="attendance-empty" style="display:none;color:var(--gray-light);font-size:0.9rem">No hay estudiantes registrados.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PAGOS ── -->
+      <div id="section-pagos" class="admin-section">
+        <h2 class="admin-section-header">Pagos</h2>
+        <div class="section-card">
+          <div class="section-card-body" style="text-align:center;padding:3rem">
+            <p style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--gray-mid)">PRÓXIMAMENTE</p>
+            <p style="font-size:0.85rem;color:var(--gray-mid);margin-top:0.5rem">Historial completo de pagos, reportes y estadísticas</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /admin-content -->
   </div>
 
   <!-- STUDENT DASHBOARD -->
@@ -325,9 +367,22 @@
               <input type="tel" id="cort-phone" placeholder="3001234567">
             </div>
           </div>
-          <div class="admin-form-group">
-            <label>Email</label>
-            <input type="email" id="cort-email" placeholder="juan@email.com">
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label>Email</label>
+              <input type="email" id="cort-email" placeholder="juan@email.com">
+            </div>
+            <div class="admin-form-group">
+              <label>Fecha de nacimiento</label>
+              <input type="date" id="cort-birthdate">
+            </div>
+          </div>
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label>Fecha de inicio</label>
+              <input type="date" id="cort-start">
+            </div>
+            <div class="admin-form-group admin-form-group--empty"></div>
           </div>
           <div class="admin-form-group" id="cort-status-group" style="display:none">
             <label>Estado</label>
@@ -690,6 +745,49 @@ window._cortesiaData = [];
 let _editCortesiaId  = null;
 let _convertCortesiaId = null;
 
+function switchAdminSection(section) {
+  document.querySelectorAll('.admin-nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.section === section);
+  });
+  document.querySelectorAll('.admin-section').forEach(el => {
+    el.classList.toggle('active', el.id === `section-${section}`);
+  });
+}
+window.switchAdminSection = switchAdminSection;
+
+function switchCortTab(tab) {
+  document.querySelectorAll('.cort-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  document.querySelectorAll('.cort-section').forEach(el => {
+    el.style.display = el.id === `cort-section-${tab}` ? '' : 'none';
+  });
+  if (tab === 'pasadas') loadCortesiasPasadas();
+}
+window.switchCortTab = switchCortTab;
+
+function calcAge(birthdate) {
+  if (!birthdate) return '—';
+  const b = new Date(birthdate), now = new Date();
+  let age = now.getFullYear() - b.getFullYear();
+  if (now.getMonth() < b.getMonth() || (now.getMonth() === b.getMonth() && now.getDate() < b.getDate())) age--;
+  return age + 'a';
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr), today = new Date();
+  today.setHours(0,0,0,0); d.setHours(0,0,0,0);
+  return Math.round((today - d) / 86400000);
+}
+
+function daysBetween(d1, d2) {
+  if (!d1 || !d2) return null;
+  const a = new Date(d1), b = new Date(d2);
+  a.setHours(0,0,0,0); b.setHours(0,0,0,0);
+  return Math.abs(Math.round((b - a) / 86400000));
+}
+
 function cortesiaBadge(n) {
   const v = n || 0;
   const col = v >= 3 ? '#4ade80' : v > 0 ? '#4FC3F7' : 'var(--gray-mid)';
@@ -722,23 +820,63 @@ async function loadCortesias() {
   const { data, error } = await supabase
     .from('cortesias').select('*').order('created_at', { ascending: false });
   hide('cortesias-loading');
-  if (error || !data || data.length === 0) {
-    show('cortesias-empty');
-    $('stat-cortesia').textContent = error ? '?' : 0;
-    return;
-  }
-  window._cortesiaData = data;
-  $('stat-cortesia').textContent = data.filter(c => c.status === 'cortesia').length;
+
+  if (error) { show('cortesias-empty'); $('stat-cortesia').textContent = '?'; return; }
+
+  window._cortesiaData = data || [];
+  const active = (data||[]).filter(c => c.status === 'cortesia');
+  $('stat-cortesia').textContent = active.length;
+
+  if (active.length === 0) { show('cortesias-empty'); return; }
+  $('cortesias-empty').style.display = 'none';
   show('cortesias-table-wrap');
-  $('cortesias-tbody').innerHTML = data.map(c => `<tr>
-    <td>${c.full_name||'—'}</td>
-    <td>${c.document||'—'}</td>
-    <td>${c.phone||'—'}</td>
-    <td>${c.email||'—'}</td>
-    <td>${cortesiaBadge(c.classes_attended)}</td>
-    <td>${cortesiaStatusBadge(c.status)}</td>
-    <td style="white-space:nowrap">${cortesiaActions(c)}</td>
-  </tr>`).join('');
+  $('cortesias-tbody').innerHTML = active.map(c => {
+    const ds = daysSince(c.start_date || c.created_at?.split('T')[0]);
+    const notas = c.notes ? (c.notes.length > 28 ? c.notes.slice(0,28)+'…' : c.notes) : '—';
+    return `<tr>
+      <td>${c.full_name||'—'}</td>
+      <td>${c.document||'—'}</td>
+      <td>${c.phone||'—'}</td>
+      <td>${c.email||'—'}</td>
+      <td>${calcAge(c.birthdate)}</td>
+      <td>${cortesiaBadge(c.classes_attended)}</td>
+      <td>${c.start_date ? fmtDate(c.start_date) : '—'}</td>
+      <td>${ds !== null ? ds+'d' : '—'}</td>
+      <td title="${c.notes||''}" style="max-width:120px">${notas}</td>
+      <td style="white-space:nowrap">${cortesiaActions(c)}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadCortesiasPasadas() {
+  $('cortesias-past-loading').style.display = '';
+  $('cortesias-past-wrap').style.display = 'none';
+  $('cortesias-past-empty').style.display = 'none';
+
+  const { data, error } = await supabase
+    .from('cortesias').select('*')
+    .in('status', ['converted', 'no_continue'])
+    .order('converted_at', { ascending: false });
+
+  hide('cortesias-past-loading');
+  if (!data || data.length === 0) { show('cortesias-past-empty'); return; }
+
+  show('cortesias-past-wrap');
+  $('cortesias-past-tbody').innerHTML = data.map(c => {
+    const db = daysBetween(c.start_date || c.created_at?.split('T')[0], c.converted_at?.split('T')[0]);
+    return `<tr>
+      <td>${c.full_name||'—'}</td>
+      <td>${c.document||'—'}</td>
+      <td>${c.email||'—'}</td>
+      <td>${c.phone||'—'}</td>
+      <td>${calcAge(c.birthdate)}</td>
+      <td>${c.start_date ? fmtDate(c.start_date) : '—'}</td>
+      <td>${c.converted_at ? fmtDate(c.converted_at) : '—'}</td>
+      <td>${cortesiaBadge(c.classes_attended)}</td>
+      <td>${cortesiaStatusBadge(c.status)}</td>
+      <td>${db !== null ? db+'d' : '—'}</td>
+    </tr>`;
+  }).join('');
 }
 
 async function addCortesiaClass(id, current) {
@@ -752,7 +890,9 @@ window.addCortesiaClass = addCortesiaClass;
 async function setCortesiaStatus(id, status) {
   const labels = { no_continue: 'No continuó' };
   if (!confirm(`¿Marcar como "${labels[status] || status}"?`)) return;
-  const { error } = await supabase.from('cortesias').update({ status }).eq('id', id);
+  const payload = { status };
+  if (status === 'no_continue') payload.converted_at = new Date().toISOString();
+  const { error } = await supabase.from('cortesias').update(payload).eq('id', id);
   if (!error) await loadCortesias();
 }
 window.setCortesiaStatus = setCortesiaStatus;
@@ -761,16 +901,19 @@ function openCortesiaModal(id) {
   _editCortesiaId = id || null;
   $('cort-modal-title').textContent = id ? 'Editar Cortesía' : 'Nueva Cortesía';
   $('cortesia-form').reset();
+  $('cort-start').value = new Date().toISOString().split('T')[0];
   $('cort-status-group').style.display = id ? '' : 'none';
   if (id) {
     const c = (window._cortesiaData || []).find(x => x.id === id);
     if (c) {
-      $('cort-name').value  = c.full_name || '';
-      $('cort-doc').value   = c.document  || '';
-      $('cort-phone').value = c.phone     || '';
-      $('cort-email').value = c.email     || '';
-      $('cort-notes').value = c.notes     || '';
-      $('cort-status').value = c.status   || 'cortesia';
+      $('cort-name').value      = c.full_name  || '';
+      $('cort-doc').value       = c.document   || '';
+      $('cort-phone').value     = c.phone      || '';
+      $('cort-email').value     = c.email      || '';
+      $('cort-birthdate').value = c.birthdate  || '';
+      $('cort-start').value     = c.start_date || new Date().toISOString().split('T')[0];
+      $('cort-notes').value     = c.notes      || '';
+      $('cort-status').value    = c.status     || 'cortesia';
     }
   }
   $('cort-error').textContent = '';
@@ -1375,11 +1518,13 @@ $('cortesia-form').addEventListener('submit', async e => {
   errEl.classList.remove('visible');
 
   const payload = {
-    full_name: $('cort-name').value.trim(),
-    document:  $('cort-doc').value.trim()   || null,
-    phone:     $('cort-phone').value.trim() || null,
-    email:     $('cort-email').value.trim() || null,
-    notes:     $('cort-notes').value.trim() || null,
+    full_name:  $('cort-name').value.trim()      || null,
+    document:   $('cort-doc').value.trim()        || null,
+    phone:      $('cort-phone').value.trim()      || null,
+    email:      $('cort-email').value.trim()      || null,
+    birthdate:  $('cort-birthdate').value         || null,
+    start_date: $('cort-start').value             || null,
+    notes:      $('cort-notes').value.trim()      || null,
   };
 
   let error;
