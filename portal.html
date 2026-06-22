@@ -84,6 +84,7 @@
     <div class="section-card">
       <div class="section-card-header">
         <h3>Estudiantes</h3>
+        <button class="btn-admin-action" onclick="window.openNewStudentModal()">+ Nuevo estudiante</button>
       </div>
       <div class="section-card-body">
         <div id="students-loading" class="loading">Cargando</div>
@@ -97,6 +98,7 @@
                 <th>Disciplina</th>
                 <th>Pago</th>
                 <th>Días</th>
+                <th></th>
                 <th></th>
               </tr>
             </thead>
@@ -115,6 +117,7 @@
         <h3>Asistencia — Hoy</h3>
       </div>
       <div class="section-card-body">
+        <div id="att-summary" class="att-summary" style="display:none"></div>
         <div id="attendance-loading" class="loading">Cargando</div>
         <div id="attendance-table-wrap" style="display:none; overflow-x:auto">
           <table class="data-table">
@@ -218,6 +221,66 @@
     </div>
   </div>
 
+  <!-- NEW STUDENT MODAL -->
+  <div id="new-student-modal" class="stat-modal-overlay">
+    <div class="stat-modal-box" style="max-width:460px">
+      <div class="stat-modal-header">
+        <h3>Nuevo Estudiante</h3>
+        <button class="stat-modal-close" id="new-student-close">✕</button>
+      </div>
+      <div class="stat-modal-body">
+        <form id="new-student-form" class="admin-form">
+          <div class="admin-form-group">
+            <label>Nombre completo</label>
+            <input type="text" id="ns-name" required placeholder="Juan García">
+          </div>
+          <div class="admin-form-group">
+            <label>Email</label>
+            <input type="email" id="ns-email" required placeholder="juan@email.com">
+          </div>
+          <div class="admin-form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="ns-phone" placeholder="3001234567">
+          </div>
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label>Fecha de inicio</label>
+              <input type="date" id="ns-start" required>
+            </div>
+            <div class="admin-form-group">
+              <label>Monto mensual (COP)</label>
+              <input type="number" id="ns-amount" value="150000" required>
+            </div>
+          </div>
+          <div class="error-msg" id="ns-error"></div>
+          <div class="admin-form-actions">
+            <button type="submit" class="btn-primary" id="ns-submit">Crear estudiante</button>
+            <button type="button" class="btn-logout" id="ns-cancel">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM PAYMENT MODAL -->
+  <div id="pay-modal" class="stat-modal-overlay">
+    <div class="stat-modal-box" style="max-width:360px">
+      <div class="stat-modal-header">
+        <h3>Confirmar Pago</h3>
+        <button class="stat-modal-close" id="pay-modal-close">✕</button>
+      </div>
+      <div class="stat-modal-body">
+        <p id="pay-modal-desc" style="color:var(--white);font-size:0.95rem;margin-bottom:1.25rem;line-height:1.5"></p>
+        <div class="pay-method-group">
+          <button class="pay-method-btn" data-method="nequi" onclick="window.selectPayMethod(this)">Nequi</button>
+          <button class="pay-method-btn" data-method="efectivo" onclick="window.selectPayMethod(this)">Efectivo</button>
+        </div>
+        <div class="error-msg" id="pay-modal-error" style="margin-top:0.75rem"></div>
+        <button class="btn-primary" id="pay-confirm-btn" style="width:100%;margin-top:1rem" onclick="window.confirmPayment()">Confirmar pago</button>
+      </div>
+    </div>
+  </div>
+
   <!-- DAY SCHEDULE MODAL -->
   <div id="day-modal" class="stat-modal-overlay">
     <div class="stat-modal-box day-modal-box">
@@ -302,6 +365,24 @@ function waBtn(s, days) {
     : `vence en ${days} días`;
   const msg = encodeURIComponent(`Hola ${name}, tu mensualidad del IFM ${daysText}. Recuerda realizar tu pago de $150.000 COP. ¡Gracias!`);
   return `<a href="https://wa.me/${phone}?text=${msg}" target="_blank" class="btn-wa">WA</a>`;
+}
+
+function confPayBtn(s) {
+  if (s.payment_status === 'paid') return '';
+  const safeName = (s.full_name || '').replace(/'/g, "\\'");
+  return `<button class="btn-conf-pay" onclick="window.openPaymentModal('${s.id}','${safeName}')">💳</button>`;
+}
+
+let _attTodayMap = {}, _attTotalCount = 0;
+
+function updateAttSummary() {
+  const el = $('att-summary');
+  if (!el) return;
+  const present  = Object.values(_attTodayMap).filter(s => s === 'present').length;
+  const absent   = Object.values(_attTodayMap).filter(s => s === 'absent').length;
+  const unmarked = _attTotalCount - present - absent;
+  el.innerHTML = `<span class="att-sum-p">✓ ${present} presente${present !== 1 ? 's' : ''}</span><span class="att-sum-sep"> · </span><span class="att-sum-a">✗ ${absent} ausente${absent !== 1 ? 's' : ''}</span><span class="att-sum-sep"> · </span><span class="att-sum-n">${unmarked} sin marcar</span>`;
+  el.style.display = '';
 }
 
 function openStatModal(filter) {
@@ -454,6 +535,7 @@ async function loadStudents() {
       <td>${payBadge(s.payment_status)}</td>
       <td>${daysHtml(days)}</td>
       <td>${waBtn(s, days)}</td>
+      <td>${confPayBtn(s)}</td>
     </tr>`;
   }).join('');
 
@@ -490,12 +572,14 @@ async function loadTodayAttendance() {
 
   show('attendance-table-wrap');
 
-  const recordMap = {};
-  (records || []).forEach(r => { recordMap[r.student_id] = r.status; });
+  _attTodayMap = {};
+  _attTotalCount = students.length;
+  (records || []).forEach(r => { _attTodayMap[r.student_id] = r.status; });
+  updateAttSummary();
 
   const tbody = $('attendance-tbody');
   tbody.innerHTML = students.map(s => {
-    const status = recordMap[s.id];
+    const status = _attTodayMap[s.id];
     const hasRecord = status !== undefined;
     return `
       <tr id="att-row-${s.id}">
@@ -523,6 +607,8 @@ async function loadTodayAttendance() {
 
     if (!error) {
       $(`att-status-${studentId}`).innerHTML = attBadge(status);
+      _attTodayMap[studentId] = status;
+      updateAttSummary();
     }
     btn.disabled = false;
   });
@@ -918,7 +1004,143 @@ document.getElementById('stat-modal-close').addEventListener('click', () => { $(
 document.getElementById('stat-modal').addEventListener('click', e => { if (e.target === $('stat-modal')) $('stat-modal').style.display = 'none'; });
 document.getElementById('day-modal-close').addEventListener('click', () => { $('day-modal').style.display = 'none'; });
 document.getElementById('day-modal').addEventListener('click', e => { if (e.target === $('day-modal')) $('day-modal').style.display = 'none'; });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('stat-modal').style.display = 'none'; $('day-modal').style.display = 'none'; } });;
+document.getElementById('new-student-close').addEventListener('click', () => { $('new-student-modal').style.display = 'none'; });
+document.getElementById('new-student-modal').addEventListener('click', e => { if (e.target === $('new-student-modal')) $('new-student-modal').style.display = 'none'; });
+document.getElementById('ns-cancel').addEventListener('click', () => { $('new-student-modal').style.display = 'none'; });
+document.getElementById('pay-modal-close').addEventListener('click', () => { $('pay-modal').style.display = 'none'; });
+document.getElementById('pay-modal').addEventListener('click', e => { if (e.target === $('pay-modal')) $('pay-modal').style.display = 'none'; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { [$('stat-modal'),$('day-modal'),$('new-student-modal'),$('pay-modal')].forEach(m => { if(m) m.style.display = 'none'; }); } });
+
+// ── NEW STUDENT ──
+function openNewStudentModal() {
+  $('new-student-form').reset();
+  $('ns-start').value = new Date().toISOString().split('T')[0];
+  $('ns-amount').value = '150000';
+  $('ns-error').textContent = '';
+  $('ns-error').classList.remove('visible');
+  $('ns-submit').disabled = false;
+  $('ns-submit').textContent = 'Crear estudiante';
+  $('new-student-modal').style.display = 'flex';
+}
+window.openNewStudentModal = openNewStudentModal;
+
+$('new-student-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('ns-submit');
+  const errEl = $('ns-error');
+  btn.disabled = true;
+  btn.textContent = 'Creando...';
+  errEl.classList.remove('visible');
+
+  const name   = $('ns-name').value.trim();
+  const email  = $('ns-email').value.trim();
+  const phone  = $('ns-phone').value.trim();
+  const start  = $('ns-start').value;
+  const amount = parseInt($('ns-amount').value) || 150000;
+
+  const due = new Date(start);
+  due.setDate(due.getDate() + 30);
+  const dueDateStr = due.toISOString().split('T')[0];
+
+  // Create auth user
+  const { data: authData, error: authErr } = await supabase.auth.signUp({ email, password: 'IFM2025' });
+  if (authErr) {
+    errEl.textContent = authErr.message;
+    errEl.classList.add('visible');
+    btn.disabled = false; btn.textContent = 'Crear estudiante';
+    return;
+  }
+  const userId = authData.user?.id;
+  if (!userId) {
+    errEl.textContent = 'Error: no se obtuvo ID de usuario.';
+    errEl.classList.add('visible');
+    btn.disabled = false; btn.textContent = 'Crear estudiante';
+    return;
+  }
+
+  // Insert profile
+  const { error: profErr } = await supabase.from('profiles').upsert({
+    id: userId, full_name: name, email, phone,
+    role: 'student', payment_status: 'pending', payment_due_date: dueDateStr,
+  });
+
+  // Insert initial payment
+  const period = new Date(start).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+  await supabase.from('payments').insert({
+    student_id: userId, period, status: 'pending', due_date: dueDateStr, amount,
+  });
+
+  if (profErr) {
+    errEl.textContent = `Usuario en Auth creado, pero error en perfil: ${profErr.message}`;
+    errEl.classList.add('visible');
+  } else {
+    $('new-student-modal').style.display = 'none';
+    await loadStudents();
+  }
+  btn.disabled = false; btn.textContent = 'Crear estudiante';
+});
+
+// ── CONFIRM PAYMENT ──
+let _payStudentId = null, _payMethod = null;
+
+function openPaymentModal(studentId, name) {
+  _payStudentId = studentId;
+  _payMethod = null;
+  $('pay-modal-desc').textContent = `Confirmar pago de $150.000 COP de ${name}`;
+  $('pay-modal-error').textContent = '';
+  $('pay-modal-error').classList.remove('visible');
+  document.querySelectorAll('.pay-method-btn').forEach(b => b.classList.remove('active'));
+  $('pay-confirm-btn').disabled = false;
+  $('pay-confirm-btn').textContent = 'Confirmar pago';
+  $('pay-modal').style.display = 'flex';
+}
+window.openPaymentModal = openPaymentModal;
+
+function selectPayMethod(btn) {
+  document.querySelectorAll('.pay-method-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _payMethod = btn.dataset.method;
+}
+window.selectPayMethod = selectPayMethod;
+
+async function confirmPayment() {
+  if (!_payStudentId) return;
+  if (!_payMethod) {
+    $('pay-modal-error').textContent = 'Selecciona el método de pago.';
+    $('pay-modal-error').classList.add('visible');
+    return;
+  }
+  const btn = $('pay-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+
+  const today = new Date();
+  const due = new Date(today);
+  due.setDate(due.getDate() + 30);
+  const todayStr  = today.toISOString().split('T')[0];
+  const dueStr    = due.toISOString().split('T')[0];
+  const period    = today.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+
+  const [{ error: payErr }, { error: profErr }] = await Promise.all([
+    supabase.from('payments').insert({
+      student_id: _payStudentId, period, status: 'paid',
+      due_date: dueStr, amount: 150000,
+    }),
+    supabase.from('profiles').update({
+      payment_status: 'paid', payment_due_date: dueStr,
+    }).eq('id', _payStudentId),
+  ]);
+
+  const errEl = $('pay-modal-error');
+  if (payErr || profErr) {
+    errEl.textContent = (payErr || profErr).message;
+    errEl.classList.add('visible');
+  } else {
+    $('pay-modal').style.display = 'none';
+    await loadStudents();
+  }
+  btn.disabled = false; btn.textContent = 'Confirmar pago';
+}
+window.confirmPayment = confirmPayment;;
 
 // ── THEME TOGGLE (sincronizado con index.html via localStorage) ──
 (function() {
