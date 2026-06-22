@@ -98,6 +98,8 @@
                 <th>Disciplina</th>
                 <th>Pago</th>
                 <th>Días</th>
+                <th title="Uniforme entregado">🎽</th>
+                <th title="Matrícula pagada">📋</th>
                 <th></th>
                 <th></th>
               </tr>
@@ -252,6 +254,14 @@
               <input type="number" id="ns-amount" value="150000" required>
             </div>
           </div>
+          <div class="admin-form-checks">
+            <label class="admin-check-label">
+              <input type="checkbox" id="ns-matricula"> Matrícula pagada ($250.000)
+            </label>
+            <label class="admin-check-label">
+              <input type="checkbox" id="ns-uniforme"> Uniforme entregado
+            </label>
+          </div>
           <div class="error-msg" id="ns-error"></div>
           <div class="admin-form-actions">
             <button type="submit" class="btn-primary" id="ns-submit">Crear estudiante</button>
@@ -366,6 +376,32 @@ function waBtn(s, days) {
   const msg = encodeURIComponent(`Hola ${name}, tu mensualidad del IFM ${daysText}. Recuerda realizar tu pago de $150.000 COP. ¡Gracias!`);
   return `<a href="https://wa.me/${phone}?text=${msg}" target="_blank" class="btn-wa">WA</a>`;
 }
+
+function chkIcon(val, studentId, field, emoji) {
+  const cls  = val ? 'chk-yes' : 'chk-no';
+  const icon = val ? '✓' : '✗';
+  return `<span class="chk-toggle ${cls}" data-sid="${studentId}" data-field="${field}" data-val="${val}" onclick="window.toggleStudentField(this)" title="${emoji} ${val ? 'Sí' : 'No'} — clic para cambiar">${icon}</span>`;
+}
+
+async function toggleStudentField(el) {
+  const studentId  = el.dataset.sid;
+  const field      = el.dataset.field;
+  const currentVal = el.dataset.val === 'true';
+  const newVal     = !currentVal;
+
+  el.style.opacity = '0.4';
+  const { error } = await supabase.from('profiles').update({ [field]: newVal }).eq('id', studentId);
+  el.style.opacity = '1';
+
+  if (!error) {
+    el.dataset.val  = String(newVal);
+    el.textContent  = newVal ? '✓' : '✗';
+    el.className    = `chk-toggle ${newVal ? 'chk-yes' : 'chk-no'}`;
+    const s = (window._allStudents || []).find(s => s.id === studentId);
+    if (s) s[field] = newVal;
+  }
+}
+window.toggleStudentField = toggleStudentField;
 
 function confPayBtn(s) {
   if (s.payment_status === 'paid') return '';
@@ -510,7 +546,7 @@ async function loadAdminDashboard() {
 async function loadStudents() {
   const { data: students, error } = await supabase
     .from('profiles')
-    .select('id, full_name, email, discipline, payment_status, payment_due_date, phone, avatar_url')
+    .select('id, full_name, email, discipline, payment_status, payment_due_date, phone, avatar_url, matricula_pagada, uniforme_entregado')
     .eq('role', 'student')
     .order('full_name');
 
@@ -534,6 +570,8 @@ async function loadStudents() {
       <td>${s.discipline || '—'}</td>
       <td>${payBadge(s.payment_status)}</td>
       <td>${daysHtml(days)}</td>
+      <td>${chkIcon(!!s.uniforme_entregado, s.id, 'uniforme_entregado', '🎽')}</td>
+      <td>${chkIcon(!!s.matricula_pagada,  s.id, 'matricula_pagada',  '📋')}</td>
       <td>${waBtn(s, days)}</td>
       <td>${confPayBtn(s)}</td>
     </tr>`;
@@ -1062,6 +1100,8 @@ $('new-student-form').addEventListener('submit', async e => {
   const { error: profErr } = await supabase.from('profiles').upsert({
     id: userId, full_name: name, email, phone,
     role: 'student', payment_status: 'pending', payment_due_date: dueDateStr,
+    matricula_pagada: $('ns-matricula').checked,
+    uniforme_entregado: $('ns-uniforme').checked,
   });
 
   // Insert initial payment
