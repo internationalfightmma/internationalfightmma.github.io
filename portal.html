@@ -173,6 +173,8 @@
           </p>
 
           <div id="contract-btn-wrap" style="margin-top:1rem"></div>
+
+          <div id="quick-stats" class="quick-stats" style="display:none"></div>
         </div>
       </div>
 
@@ -366,7 +368,7 @@ async function enterPortal(user) {
     $('nav-role-badge').className = 'role-badge student';
     show('student-dashboard');
     hide('admin-dashboard');
-    await loadStudentDashboard(user.id);
+    await loadStudentDashboard(user.id, user);
   }
 }
 
@@ -529,11 +531,11 @@ async function loadTodayAttendance() {
 /* ══════════════════════════════════════════
    STUDENT DASHBOARD
 ══════════════════════════════════════════ */
-async function loadStudentDashboard(userId) {
-  await Promise.all([loadMyProfile(userId), loadMyPayments(userId), loadMyAttendance(userId)]);
+async function loadStudentDashboard(userId, user) {
+  await Promise.all([loadMyProfile(userId, user), loadMyPayments(userId), loadMyAttendance(userId)]);
 }
 
-async function loadMyProfile(userId) {
+async function loadMyProfile(userId, user) {
   const { data } = await supabase
     .from('profiles')
     .select('full_name, email, discipline, created_at, avatar_url, contract_url')
@@ -541,25 +543,27 @@ async function loadMyProfile(userId) {
     .single();
 
   hide('profile-loading');
-  if (!data) return;
-  show('profile-content');
+  show('profile-content'); // always show — fallback to auth data if profiles query fails
 
-  $('profile-name').textContent = data.full_name || '—';
-  $('profile-email').textContent = data.email || '';
-  $('profile-discipline').textContent = data.discipline ? `🥋 ${data.discipline}` : '';
-  $('profile-since').textContent = data.created_at ? `Miembro desde ${fmtDate(data.created_at)}` : '';
+  const name  = data?.full_name || user?.email?.split('@')[0] || '—';
+  const email = data?.email     || user?.email || '';
 
-  if (data.avatar_url) {
+  $('profile-name').textContent = name;
+  $('profile-email').textContent = email;
+  $('profile-discipline').textContent = data?.discipline ? `🥋 ${data.discipline}` : '';
+  $('profile-since').textContent = data?.created_at ? `Miembro desde ${fmtDate(data.created_at)}` : '';
+
+  if (data?.avatar_url) {
     $('profile-photo').src = data.avatar_url;
     $('profile-photo').style.display = 'block';
     $('profile-avatar').style.display = 'none';
   } else {
-    const initials = (data.full_name || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
     $('profile-avatar').textContent = initials;
   }
 
   const contractWrap = $('contract-btn-wrap');
-  if (data.contract_url) {
+  if (data?.contract_url) {
     contractWrap.innerHTML = `<a href="${data.contract_url}" target="_blank" class="btn-contract">&#128196; Ver mi contrato</a>`;
   } else {
     contractWrap.innerHTML = `<button class="btn-contract btn-contract-disabled" disabled>&#128196; Contrato pendiente</button>`;
@@ -778,6 +782,63 @@ function switchAttTab(tab) {
 }
 window.switchAttTab = switchAttTab;
 
+function renderQuickStats() {
+  const el = $('quick-stats');
+  if (!el) return;
+
+  const now = new Date();
+  const ym  = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+
+  // Clases este mes
+  let monthPresent = 0;
+  Object.entries(_attRecords).forEach(([k, st]) => {
+    if (k.startsWith(ym) && st === 'present') monthPresent++;
+  });
+
+  // Racha actual — días consecutivos presentes hacia atrás desde hoy
+  let currentStreak = 0;
+  const cur = new Date(now);
+  for (let i = 0; i < 365; i++) {
+    const key = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
+    if (_attRecords[key] === 'present') { currentStreak++; cur.setDate(cur.getDate() - 1); }
+    else break;
+  }
+
+  // Mejor racha histórica
+  const presentDays = Object.keys(_attRecords)
+    .filter(k => _attRecords[k] === 'present')
+    .sort();
+  let bestStreak = 0, streak = 0;
+  let prev = null;
+  presentDays.forEach(ds => {
+    const d = new Date(ds);
+    if (prev) {
+      const diff = Math.round((d - prev) / 86400000);
+      streak = diff === 1 ? streak + 1 : 1;
+    } else { streak = 1; }
+    if (streak > bestStreak) bestStreak = streak;
+    prev = d;
+  });
+
+  el.innerHTML = `
+    <div class="qs-grid">
+      <div class="qs-item">
+        <div class="qs-value">${monthPresent}</div>
+        <div class="qs-label">Clases este mes</div>
+      </div>
+      <div class="qs-item">
+        <div class="qs-value">${currentStreak}<span class="qs-unit">días</span></div>
+        <div class="qs-label">Racha actual</div>
+      </div>
+      <div class="qs-item">
+        <div class="qs-value">${bestStreak}<span class="qs-unit">días</span></div>
+        <div class="qs-label">Mejor racha</div>
+      </div>
+    </div>
+  `;
+  el.style.display = '';
+}
+
 function renderAttCalendar() {
   const y = _attYear, m = _attMonth;
   $('att-cal-month-label').textContent = `${MONTH_NAMES[m]} ${y}`;
@@ -833,6 +894,7 @@ async function loadMyAttendance(userId) {
 
   show('my-attendance-wrap');
   renderAttCalendar();
+  renderQuickStats();
 
   if (!_attListenersAdded) {
     _attListenersAdded = true;
