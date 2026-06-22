@@ -78,6 +78,10 @@
         <div class="stat-label">Vencidos</div>
         <div class="stat-value" id="stat-overdue">—</div>
       </div>
+      <div class="stat-card" onclick="document.getElementById('cortesias-section').scrollIntoView({behavior:'smooth'})" style="cursor:pointer" title="Ver cortesías">
+        <div class="stat-label">En cortesía</div>
+        <div class="stat-value" id="stat-cortesia">—</div>
+      </div>
     </div>
 
     <!-- Students table -->
@@ -115,14 +119,34 @@
       </div>
     </div>
 
+    <!-- Cortesías -->
+    <div class="section-card" id="cortesias-section">
+      <div class="section-card-header">
+        <h3>Cortesías <span style="font-size:0.75rem;color:var(--gray-light);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">(3 clases gratis)</span></h3>
+        <button class="btn-admin-action" onclick="window.openCortesiaModal()">+ Nueva cortesía</button>
+      </div>
+      <div class="section-card-body">
+        <div id="cortesias-loading" class="loading">Cargando</div>
+        <div id="cortesias-table-wrap" style="display:none;overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nombre</th><th>Documento</th><th>Teléfono</th><th>Email</th>
+                <th>Clases</th><th>Estado</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cortesias-tbody"></tbody>
+          </table>
+        </div>
+        <p id="cortesias-empty" style="display:none;color:var(--gray-light);font-size:0.9rem">No hay cortesías registradas.</p>
+      </div>
+    </div>
+
     <!-- Attendance today -->
     <div class="section-card">
       <div class="section-card-header">
         <h3 id="att-section-title">Asistencia</h3>
-        <div style="display:flex;gap:0.4rem">
-          <button class="btn-admin-action btn-att-all-present" onclick="window.markAllPresent()">✓ Todos presentes</button>
-          <button class="btn-admin-action btn-att-export" onclick="window.exportAttCSV()">↓ CSV</button>
-        </div>
+        <button class="btn-admin-action btn-att-export" onclick="window.exportAttCSV()">↓ CSV</button>
       </div>
       <div class="section-card-body">
         <div class="att-controls">
@@ -274,6 +298,54 @@
             <div class="att-cal-grid" id="pm-att-cal"></div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CORTESIA MODAL -->
+  <div id="cortesia-modal" class="stat-modal-overlay">
+    <div class="stat-modal-box" style="max-width:440px">
+      <div class="stat-modal-header">
+        <h3 id="cort-modal-title">Nueva Cortesía</h3>
+        <button class="stat-modal-close" id="cortesia-close">✕</button>
+      </div>
+      <div class="stat-modal-body">
+        <form id="cortesia-form" class="admin-form">
+          <div class="admin-form-group">
+            <label>Nombre completo</label>
+            <input type="text" id="cort-name" required placeholder="Juan García">
+          </div>
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label>Documento</label>
+              <input type="text" id="cort-doc" placeholder="CC 123456789">
+            </div>
+            <div class="admin-form-group">
+              <label>Teléfono</label>
+              <input type="tel" id="cort-phone" placeholder="3001234567">
+            </div>
+          </div>
+          <div class="admin-form-group">
+            <label>Email</label>
+            <input type="email" id="cort-email" placeholder="juan@email.com">
+          </div>
+          <div class="admin-form-group" id="cort-status-group" style="display:none">
+            <label>Estado</label>
+            <select id="cort-status" class="att-session-select" style="width:100%">
+              <option value="cortesia">En cortesía</option>
+              <option value="no_continue">No continuó</option>
+            </select>
+          </div>
+          <div class="admin-form-group">
+            <label>Notas</label>
+            <textarea id="cort-notes" class="admin-textarea" rows="2" placeholder="Observaciones..."></textarea>
+          </div>
+          <div class="error-msg" id="cort-error"></div>
+          <div class="admin-form-actions">
+            <button type="submit" class="btn-primary" id="cort-submit">Registrar</button>
+            <button type="button" class="btn-logout" id="cort-cancel">Cancelar</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -608,8 +680,127 @@ $('logout-btn').addEventListener('click', async () => {
 ══════════════════════════════════════════ */
 async function loadAdminDashboard() {
   $('att-date-filter').value = new Date().toISOString().split('T')[0];
-  await Promise.all([loadStudents(), loadAttendance()]);
+  await Promise.all([loadStudents(), loadAttendance(), loadCortesias()]);
 }
+
+/* ══════════════════════════════════════════
+   CORTESÍAS
+══════════════════════════════════════════ */
+window._cortesiaData = [];
+let _editCortesiaId  = null;
+let _convertCortesiaId = null;
+
+function cortesiaBadge(n) {
+  const v = n || 0;
+  const col = v >= 3 ? '#4ade80' : v > 0 ? '#4FC3F7' : 'var(--gray-mid)';
+  const bg  = v >= 3 ? 'rgba(0,180,80,0.1)' : v > 0 ? 'rgba(79,195,247,0.1)' : 'rgba(100,100,100,0.1)';
+  return `<span class="badge" style="background:${bg};color:${col};border:1px solid ${col}40;font-size:0.85rem;padding:3px 10px">${v}/3</span>`;
+}
+
+function cortesiaStatusBadge(s) {
+  if (s === 'converted')   return '<span class="badge badge-paid">Convirtió</span>';
+  if (s === 'no_continue') return '<span class="badge" style="background:rgba(100,100,100,0.12);color:var(--gray-light);border:1px solid var(--gray)">No continuó</span>';
+  return '<span class="badge badge-cortesia">En cortesía</span>';
+}
+
+function cortesiaActions(c) {
+  const att = c.classes_attended || 0;
+  const canAdd     = c.status === 'cortesia' && att < 3;
+  const canConvert = c.status === 'cortesia' && att >= 3;
+  let html = '';
+  if (canAdd)
+    html += `<button class="btn-act-icon" onclick="window.addCortesiaClass('${c.id}',${att})" title="Agregar clase">➕</button>`;
+  html += `<button class="btn-act-icon" onclick="window.openCortesiaModal('${c.id}')" title="Editar">✏️</button>`;
+  if (c.status === 'cortesia')
+    html += `<button class="btn-act-icon" onclick="window.setCortesiaStatus('${c.id}','no_continue')" title="No continuó" style="opacity:0.55">✗</button>`;
+  if (canConvert)
+    html += `<button class="btn-convert" onclick="window.convertCortesiaToStudent('${c.id}')">Convertir →</button>`;
+  return html;
+}
+
+async function loadCortesias() {
+  const { data, error } = await supabase
+    .from('cortesias').select('*').order('created_at', { ascending: false });
+  hide('cortesias-loading');
+  if (error || !data || data.length === 0) {
+    show('cortesias-empty');
+    $('stat-cortesia').textContent = error ? '?' : 0;
+    return;
+  }
+  window._cortesiaData = data;
+  $('stat-cortesia').textContent = data.filter(c => c.status === 'cortesia').length;
+  show('cortesias-table-wrap');
+  $('cortesias-tbody').innerHTML = data.map(c => `<tr>
+    <td>${c.full_name||'—'}</td>
+    <td>${c.document||'—'}</td>
+    <td>${c.phone||'—'}</td>
+    <td>${c.email||'—'}</td>
+    <td>${cortesiaBadge(c.classes_attended)}</td>
+    <td>${cortesiaStatusBadge(c.status)}</td>
+    <td style="white-space:nowrap">${cortesiaActions(c)}</td>
+  </tr>`).join('');
+}
+
+async function addCortesiaClass(id, current) {
+  const newVal = Math.min((current||0) + 1, 3);
+  const { error } = await supabase.from('cortesias').update({ classes_attended: newVal }).eq('id', id);
+  if (!error) await loadCortesias();
+  else alert('Error: ' + error.message);
+}
+window.addCortesiaClass = addCortesiaClass;
+
+async function setCortesiaStatus(id, status) {
+  const labels = { no_continue: 'No continuó' };
+  if (!confirm(`¿Marcar como "${labels[status] || status}"?`)) return;
+  const { error } = await supabase.from('cortesias').update({ status }).eq('id', id);
+  if (!error) await loadCortesias();
+}
+window.setCortesiaStatus = setCortesiaStatus;
+
+function openCortesiaModal(id) {
+  _editCortesiaId = id || null;
+  $('cort-modal-title').textContent = id ? 'Editar Cortesía' : 'Nueva Cortesía';
+  $('cortesia-form').reset();
+  $('cort-status-group').style.display = id ? '' : 'none';
+  if (id) {
+    const c = (window._cortesiaData || []).find(x => x.id === id);
+    if (c) {
+      $('cort-name').value  = c.full_name || '';
+      $('cort-doc').value   = c.document  || '';
+      $('cort-phone').value = c.phone     || '';
+      $('cort-email').value = c.email     || '';
+      $('cort-notes').value = c.notes     || '';
+      $('cort-status').value = c.status   || 'cortesia';
+    }
+  }
+  $('cort-error').textContent = '';
+  $('cort-error').classList.remove('visible');
+  $('cort-submit').disabled = false;
+  $('cort-submit').textContent = id ? 'Guardar' : 'Registrar';
+  $('cortesia-modal').style.display = 'flex';
+}
+window.openCortesiaModal = openCortesiaModal;
+
+function convertCortesiaToStudent(id) {
+  const c = (window._cortesiaData || []).find(x => x.id === id);
+  if (!c) return;
+  _convertCortesiaId = id;
+  _editStudentId = null;
+  $('ns-modal-title').textContent = 'Convertir a Estudiante';
+  $('new-student-form').reset();
+  $('ns-name').value    = c.full_name || '';
+  $('ns-email').value   = c.email     || '';
+  $('ns-phone').value   = c.phone     || '';
+  $('ns-start').value   = new Date().toISOString().split('T')[0];
+  $('ns-amount').value  = '150000';
+  $('ns-matricula').checked = true;
+  $('ns-error').textContent = '';
+  $('ns-error').classList.remove('visible');
+  $('ns-submit').disabled = false;
+  $('ns-submit').textContent = 'Crear y convertir';
+  $('new-student-modal').style.display = 'flex';
+}
+window.convertCortesiaToStudent = convertCortesiaToStudent;
 
 async function loadStudents() {
   const { data: students, error } = await supabase
@@ -1170,7 +1361,45 @@ document.getElementById('pay-modal-close').addEventListener('click', () => { $('
 document.getElementById('pay-modal').addEventListener('click', e => { if (e.target === $('pay-modal')) $('pay-modal').style.display = 'none'; });
 document.getElementById('profile-modal-close').addEventListener('click', () => { $('profile-modal').style.display = 'none'; });
 document.getElementById('profile-modal').addEventListener('click', e => { if (e.target === $('profile-modal')) $('profile-modal').style.display = 'none'; });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { [$('stat-modal'),$('day-modal'),$('new-student-modal'),$('pay-modal'),$('profile-modal')].forEach(m => { if(m) m.style.display = 'none'; }); } });
+document.getElementById('cortesia-close').addEventListener('click', () => { $('cortesia-modal').style.display = 'none'; });
+document.getElementById('cortesia-modal').addEventListener('click', e => { if (e.target === $('cortesia-modal')) $('cortesia-modal').style.display = 'none'; });
+document.getElementById('cort-cancel').addEventListener('click', () => { $('cortesia-modal').style.display = 'none'; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { [$('stat-modal'),$('day-modal'),$('new-student-modal'),$('pay-modal'),$('profile-modal'),$('cortesia-modal')].forEach(m => { if(m) m.style.display = 'none'; }); } });
+
+$('cortesia-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('cort-submit');
+  const errEl = $('cort-error');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+  errEl.classList.remove('visible');
+
+  const payload = {
+    full_name: $('cort-name').value.trim(),
+    document:  $('cort-doc').value.trim()   || null,
+    phone:     $('cort-phone').value.trim() || null,
+    email:     $('cort-email').value.trim() || null,
+    notes:     $('cort-notes').value.trim() || null,
+  };
+
+  let error;
+  if (_editCortesiaId) {
+    payload.status = $('cort-status').value;
+    ({ error } = await supabase.from('cortesias').update(payload).eq('id', _editCortesiaId));
+  } else {
+    ({ error } = await supabase.from('cortesias').insert(payload));
+  }
+
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.classList.add('visible');
+  } else {
+    $('cortesia-modal').style.display = 'none';
+    await loadCortesias();
+  }
+  btn.disabled = false;
+  btn.textContent = _editCortesiaId ? 'Guardar' : 'Registrar';
+});
 
 // ── NEW / EDIT STUDENT ──
 let _editStudentId = null;
@@ -1282,6 +1511,15 @@ $('new-student-form').addEventListener('submit', async e => {
     errEl.textContent = `Usuario en Auth creado, pero error en perfil: ${profErr.message}`;
     errEl.classList.add('visible');
   } else {
+    if (_convertCortesiaId) {
+      await supabase.from('cortesias').update({
+        status: 'converted',
+        student_id: userId,
+        converted_at: new Date().toISOString(),
+      }).eq('id', _convertCortesiaId);
+      _convertCortesiaId = null;
+      await loadCortesias();
+    }
     $('new-student-modal').style.display = 'none';
     await loadStudents();
   }

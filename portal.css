@@ -527,10 +527,32 @@ body {
 .att-date-input:focus,
 .att-session-select:focus { border-color: var(--red); }
 
-.btn-att-all-present { background: rgba(0,180,80,0.75) !important; }
-.btn-att-all-present:hover { background: rgba(0,180,80,0.95) !important; }
 .btn-att-export { background: var(--gray-mid) !important; }
 .btn-att-export:hover { background: var(--gray-light) !important; }
+
+/* ── CORTESÍAS ── */
+.badge-cortesia {
+  background: rgba(79,195,247,0.12);
+  color: #4FC3F7;
+  border: 1px solid rgba(79,195,247,0.3);
+}
+.btn-convert {
+  display: inline-block;
+  padding: 3px 10px;
+  background: rgba(0,180,80,0.15);
+  color: #4ade80;
+  border: 1px solid rgba(0,180,80,0.3);
+  border-radius: 3px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-left: 2px;
+}
+.btn-convert:hover { background: rgba(0,180,80,0.3); }
 
 /* ── TOGGLE CHECKS (uniforme / matrícula) ── */
 .chk-toggle {
