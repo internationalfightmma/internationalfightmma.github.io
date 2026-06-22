@@ -118,9 +118,27 @@
     <!-- Attendance today -->
     <div class="section-card">
       <div class="section-card-header">
-        <h3>Asistencia — Hoy</h3>
+        <h3 id="att-section-title">Asistencia</h3>
+        <div style="display:flex;gap:0.4rem">
+          <button class="btn-admin-action btn-att-all-present" onclick="window.markAllPresent()">✓ Todos presentes</button>
+          <button class="btn-admin-action btn-att-export" onclick="window.exportAttCSV()">↓ CSV</button>
+        </div>
       </div>
       <div class="section-card-body">
+        <div class="att-controls">
+          <div class="att-control-group">
+            <label class="att-control-label">Fecha</label>
+            <input type="date" id="att-date-filter" class="att-date-input">
+          </div>
+          <div class="att-control-group">
+            <label class="att-control-label">Sesión</label>
+            <select id="att-session-filter" class="att-session-select">
+              <option value="all">Todas las sesiones</option>
+              <option value="morning">Mañana (6AM–8AM)</option>
+              <option value="evening">Noche (6:30PM–9PM)</option>
+            </select>
+          </div>
+        </div>
         <div id="att-summary" class="att-summary" style="display:none"></div>
         <div id="attendance-loading" class="loading">Cargando</div>
         <div id="attendance-table-wrap" style="display:none; overflow-x:auto">
@@ -136,7 +154,7 @@
           </table>
         </div>
         <p id="attendance-empty" style="display:none; color:var(--gray-light); font-size:0.9rem">
-          No hay registros de hoy.
+          No hay estudiantes registrados.
         </p>
       </div>
     </div>
@@ -589,7 +607,8 @@ $('logout-btn').addEventListener('click', async () => {
    ADMIN DASHBOARD
 ══════════════════════════════════════════ */
 async function loadAdminDashboard() {
-  await Promise.all([loadStudents(), loadTodayAttendance()]);
+  $('att-date-filter').value = new Date().toISOString().split('T')[0];
+  await Promise.all([loadStudents(), loadAttendance()]);
 }
 
 async function loadStudents() {
@@ -638,70 +657,95 @@ function updateStats(students) {
   $('stat-overdue').textContent = students.filter(s => s.payment_status === 'overdue').length;
 }
 
-async function loadTodayAttendance() {
-  const today = new Date().toISOString().split('T')[0];
+async function loadAttendance() {
+  const date    = $('att-date-filter').value || new Date().toISOString().split('T')[0];
+  const session = $('att-session-filter')?.value || 'all';
+
+  // Update section title
+  const isToday = date === new Date().toISOString().split('T')[0];
+  const sessionLabel = { all: '', morning: ' · Mañana', evening: ' · Noche' }[session] || '';
+  $('att-section-title').textContent = `Asistencia${isToday ? ' — Hoy' : ' — ' + fmtDate(date)}${sessionLabel}`;
+
+  $('attendance-table-wrap').style.display = 'none';
+  $('attendance-empty').style.display = 'none';
+  $('att-summary').style.display = 'none';
+  show('attendance-loading');
 
   const { data: students } = await supabase
-    .from('profiles')
-    .select('id, full_name')
-    .eq('role', 'student')
-    .order('full_name');
+    .from('profiles').select('id, full_name').eq('role', 'student').order('full_name');
 
-  const { data: records } = await supabase
-    .from('attendance')
-    .select('student_id, status')
-    .eq('date', today);
+  let attQ = supabase.from('attendance').select('student_id, status').eq('date', date);
+  if (session !== 'all') attQ = attQ.eq('session', session);
+  const { data: records } = await attQ;
 
   hide('attendance-loading');
 
-  if (!students || students.length === 0) {
-    show('attendance-empty');
-    return;
-  }
+  if (!students || students.length === 0) { show('attendance-empty'); return; }
 
   show('attendance-table-wrap');
-
   _attTodayMap = {};
   _attTotalCount = students.length;
   (records || []).forEach(r => { _attTodayMap[r.student_id] = r.status; });
   updateAttSummary();
 
-  const tbody = $('attendance-tbody');
-  tbody.innerHTML = students.map(s => {
+  $('attendance-tbody').innerHTML = students.map(s => {
     const status = _attTodayMap[s.id];
-    const hasRecord = status !== undefined;
     return `
       <tr id="att-row-${s.id}">
         <td>${s.full_name || '—'}</td>
-        <td id="att-status-${s.id}">${hasRecord ? attBadge(status) : '<span style="color:var(--gray-light)">Sin marcar</span>'}</td>
+        <td id="att-status-${s.id}">${status ? attBadge(status) : '<span style="color:var(--gray-light)">Sin marcar</span>'}</td>
         <td>
           <button class="btn-att" data-id="${s.id}" data-status="present" style="margin-right:6px;padding:4px 10px;background:rgba(0,180,80,0.15);color:#4ade80;border:1px solid rgba(0,180,80,0.3);border-radius:3px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase">Presente</button>
           <button class="btn-att" data-id="${s.id}" data-status="absent" style="padding:4px 10px;background:rgba(208,2,27,0.12);color:#f87171;border:1px solid rgba(208,2,27,0.3);border-radius:3px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase">Ausente</button>
         </td>
-      </tr>
-    `;
+      </tr>`;
   }).join('');
-
-  tbody.addEventListener('click', async e => {
-    const btn = e.target.closest('.btn-att');
-    if (!btn) return;
-    const studentId = btn.dataset.id;
-    const status = btn.dataset.status;
-    btn.disabled = true;
-
-    const { error } = await supabase.from('attendance').upsert(
-      { student_id: studentId, date: today, status },
-      { onConflict: 'student_id,date' }
-    );
-
-    if (!error) {
-      $(`att-status-${studentId}`).innerHTML = attBadge(status);
-      _attTodayMap[studentId] = status;
-      updateAttSummary();
-    }
-    btn.disabled = false;
-  });
 }
+
+async function markAllPresent() {
+  const date = $('att-date-filter').value;
+  const session = $('att-session-filter')?.value || 'all';
+  const label = session === 'morning' ? ' (Mañana)' : session === 'evening' ? ' (Noche)' : '';
+  if (!confirm(`¿Marcar a TODOS los estudiantes como presentes el ${fmtDate(date)}${label}?`)) return;
+
+  const students = window._allStudents || [];
+  if (students.length === 0) return;
+
+  const payload = students.map(s => {
+    const row = { student_id: s.id, date, status: 'present' };
+    if (session !== 'all') row.session = session;
+    return row;
+  });
+
+  const { error } = await supabase.from('attendance').upsert(payload, { onConflict: 'student_id,date' });
+  if (error) { alert('Error: ' + error.message); return; }
+  await loadAttendance();
+}
+window.markAllPresent = markAllPresent;
+
+function exportAttCSV() {
+  const date = $('att-date-filter').value;
+  const session = $('att-session-filter')?.value || 'all';
+  const sessionLabel = { all: 'Todas', morning: 'Mañana', evening: 'Noche' }[session] || session;
+  const students = window._allStudents || [];
+
+  const rows = [['Nombre', 'Email', 'Disciplina', 'Estado', 'Sesión', 'Fecha']];
+  students.forEach(s => {
+    const st = _attTodayMap[s.id];
+    const stLabel = st === 'present' ? 'Presente' : st === 'absent' ? 'Ausente' : 'Sin marcar';
+    rows.push([s.full_name||'', s.email||'', s.discipline||'', stLabel, sessionLabel, date]);
+  });
+
+  const csv = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `asistencia-${date}-${session}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+window.exportAttCSV = exportAttCSV;
 
 /* ══════════════════════════════════════════
    STUDENT DASHBOARD
@@ -1087,6 +1131,32 @@ async function loadMyAttendance(userId) {
 }
 
 init();
+
+// ── ATTENDANCE BTN LISTENER (once, event delegation) ──
+$('attendance-table-wrap').addEventListener('click', async e => {
+  const btn = e.target.closest('.btn-att');
+  if (!btn) return;
+  const studentId = btn.dataset.id;
+  const status    = btn.dataset.status;
+  const date      = $('att-date-filter').value;
+  const session   = $('att-session-filter')?.value || 'all';
+  btn.disabled    = true;
+
+  const payload = { student_id: studentId, date, status };
+  if (session !== 'all') payload.session = session;
+
+  const { error } = await supabase.from('attendance').upsert(payload, { onConflict: 'student_id,date' });
+  if (!error) {
+    $(`att-status-${studentId}`).innerHTML = attBadge(status);
+    _attTodayMap[studentId] = status;
+    updateAttSummary();
+  }
+  btn.disabled = false;
+});
+
+// Date / session change → reload attendance
+$('att-date-filter').addEventListener('change', loadAttendance);
+$('att-session-filter').addEventListener('change', loadAttendance);
 
 // ── MODAL CLOSE ──
 document.getElementById('stat-modal-close').addEventListener('click', () => { $('stat-modal').style.display = 'none'; });

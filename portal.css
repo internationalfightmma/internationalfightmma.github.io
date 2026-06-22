@@ -494,6 +494,44 @@ body {
 .att-sum-n   { color: var(--gray-light); }
 .att-sum-sep { color: var(--gray-mid); }
 
+/* ── ATTENDANCE CONTROLS ── */
+.att-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+  align-items: flex-end;
+}
+.att-control-group { display: flex; flex-direction: column; gap: 3px; }
+.att-control-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gray-light);
+}
+.att-date-input,
+.att-session-select {
+  background: var(--black-light);
+  border: 1px solid var(--gray);
+  border-radius: 3px;
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.88rem;
+  padding: 6px 10px;
+  outline: none;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+.att-date-input:focus,
+.att-session-select:focus { border-color: var(--red); }
+
+.btn-att-all-present { background: rgba(0,180,80,0.75) !important; }
+.btn-att-all-present:hover { background: rgba(0,180,80,0.95) !important; }
+.btn-att-export { background: var(--gray-mid) !important; }
+.btn-att-export:hover { background: var(--gray-light) !important; }
+
 /* ── TOGGLE CHECKS (uniforme / matrícula) ── */
 .chk-toggle {
   cursor: pointer;
